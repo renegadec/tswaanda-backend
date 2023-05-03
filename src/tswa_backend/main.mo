@@ -16,28 +16,28 @@ actor Store {
     public type Id = Nat32;
     private stable var next : Id = 0;
 
-    type Product = {        
-        name: Text;
-        price: Int32;
-        minOrder: Int32;
-        description: Text;
-        category: Text;    
+    type Product = {
+        name : Text;
+        price : Int32;
+        minOrder : Int32;
+        description : Text;
+        category : Text;
     };
 
-    type ProductWithId = {  
-        id: Id;      
-        name: Text;
-        price: Int32;
-        minOrder: Int32;
-        description: Text;
-        category: Text;    
+    type ProductWithId = {
+        id : Id;
+        name : Text;
+        price : Int32;
+        minOrder : Int32;
+        description : Text;
+        category : Text;
     };
 
     // the data structure to store the products.
-    private stable var products : Trie.Trie<Id, Product> = Trie.empty();       
+    private stable var products : Trie.Trie<Id, Product> = Trie.empty();
 
-    // adds new product 
-    public func addProduct (newProduct: Product) : async Id {
+    // adds new product
+    public func createProduct(newProduct : Product) : async Id {
         let id = next;
         next +%= 1;
         products := Trie.replace(
@@ -48,23 +48,23 @@ actor Store {
         ).0;
 
         return id;
-    };  
+    };
 
-    public query func findAll () : async [ProductWithId]  {
+    public query func getAllProducts() : async [ProductWithId] {
         let productsAsArray = Trie.toArray<Id, Product, ProductWithId>(products, transform);
         return productsAsArray;
     };
 
-    public query func findProductById(id : Id) : async ?Product {
+    public query func getProductById(id : Id) : async ?Product {
         let result = Trie.find(products, key(id), eq);
         return result;
     };
 
-    private func transform(id:Id, prd:Product): ProductWithId{
+    private func transform(id : Id, prd : Product) : ProductWithId {
         let newProductWithId : ProductWithId = {
-            id = id; 
+            id = id;
             name = prd.name;
-            price =  prd.price;
+            price = prd.price;
             minOrder = prd.minOrder;
             description = prd.description;
             category = prd.category;
@@ -78,5 +78,28 @@ actor Store {
 
     private func key(x : Id) : Trie.Key<Id> {
         return { hash = x; key = x };
+    };
+
+    public func updateProduct(productId : Id, product : Product) : async Bool {
+        let existingProduct = Trie.find(products, key(productId), eq);
+        if (existingProduct == null) {
+            return false;
+        };
+        products := Trie.replace(
+            products,
+            key(productId),
+            eq,
+            ?product,
+        ).0;
+        return true;
+    };
+
+    public func deleteProduct(productId : Id) : async Bool {
+        let existingProduct = Trie.find(products, key(productId), eq);
+        if (existingProduct == null) {
+            return false;
+        };
+        products := Trie.remove(products, key(productId), eq).0;
+        return true;
     };
 };
