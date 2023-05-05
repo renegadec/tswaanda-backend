@@ -11,6 +11,7 @@
 .dfx/
 
 .env
+*.env
 
 # generated files
 src/declarations/
