@@ -11,7 +11,7 @@
 .dfx/
 
 .env
-*.gienv
+*.env
 
 # generated files
 src/declarations/
