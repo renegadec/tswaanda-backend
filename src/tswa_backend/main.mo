@@ -20,8 +20,10 @@ actor Store {
         name : Text;
         price : Int32;
         minOrder : Int32;
-        description : Text;
+        shortDescription : Text;
+        fullDescription : Text;
         category : Text;
+        additionalInformation : AdditionalInformation;
     };
 
     type ProductWithId = {
@@ -29,8 +31,16 @@ actor Store {
         name : Text;
         price : Int32;
         minOrder : Int32;
-        description : Text;
+        shortDescription : Text;
+        fullDescription : Text;
         category : Text;
+        additionalInformation : AdditionalInformation;
+    };
+
+    type AdditionalInformation = {
+        price : Int32;
+        weight : Int32;
+        availability : Text;
     };
 
     // the data structure to store the products.
@@ -66,8 +76,10 @@ actor Store {
             name = prd.name;
             price = prd.price;
             minOrder = prd.minOrder;
-            description = prd.description;
+            shortDescription = prd.shortDescription;
+            fullDescription = prd.fullDescription;
             category = prd.category;
+            additionalInformation = prd.additionalInformation;
         };
         return newProductWithId;
     };
