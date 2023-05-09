@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,28 +14,46 @@ import {
 import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
 
-function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
-  const [minOrder, setMinOrder] = useState(null);
-  const [productName, setProductName] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [fullDesc, setFullDesc] = useState("");
-  const [price, setPrice] = useState(null);
-  const [category, setCategory] = useState("");
-  const [weight, setWeight] = useState(null);
-  const [availability, setAvailability] = useState("");
-  const [productImage, setProductImage] = useState(null);
-  //   const [dimensions, setDimensions] = useState("");
-  //   const [farmerId, setFarmerId] = useState("");
+const UpdateProduct = ({
+  productInfo,
+  setProductsUpdated,
+  isOpen,
+  onClose,
+}) => {
+  const [id, setId] = useState(productInfo.id);
+  const [minOrder, setMinOrder] = useState(productInfo.minOrder);
+  const [productName, setProductName] = useState(productInfo.name);
+  const [shortDescription, setShortDescription] = useState(
+    productInfo.shortDescription
+  );
+  const [fullDesc, setFullDesc] = useState(productInfo.fullDescription);
+  const [price, setPrice] = useState(productInfo.price);
+  const [category, setCategory] = useState(productInfo.category);
+  const [weight, setWeight] = useState(
+    productInfo.additionalInformation.weight
+  );
+  const [availability, setAvailability] = useState(
+    productInfo.additionalInformation.availability
+  );
+  const [image, setImage] = useState(null);
+  const [imageBytesData, setBytesImage] = useState(productInfo.image);
+
+  const handleImageChange = async (e) => {
+    setImage(e.target.files[0]);
+  };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    const imageByteData = [...new Uint8Array(await productImage.arrayBuffer())];
+    if (image) {
+      const imageData = [...new Uint8Array(await image.arrayBuffer())];
+      setBytesImage(imageData)
+    }
 
-    const newProduct = {
+    const updatedProduct = {
       name: productName,
+      image: imageBytesData,
       price: parseInt(price),
-      image: imageByteData,
       minOrder: parseInt(minOrder),
       shortDescription: shortDescription,
       fullDescription: fullDesc,
@@ -46,10 +64,11 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
         availability: availability,
       },
     };
-    await tswaanda_backend.createProduct(newProduct);
+    await tswaanda_backend.updateProduct(id, updatedProduct);
     setProductsUpdated(true);
     onClose();
   };
+
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <form onSubmit={handleFormSubmit}>
@@ -60,7 +79,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             color: "green",
           }}
         >
-          Upload a new product
+          Update product {productInfo.id}
         </DialogTitle>
         <DialogContent>
           <TextField
@@ -152,24 +171,24 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             //   multiple: true,
             // }}
             fullWidth
-            onChange={(e) => setProductImage(e.target.files[0])}
+            onChange={handleImageChange}
           />
           {/* <TextField
-            margin="dense"
-            label="Dimensions"
-            type="text"
-            fullWidth
-            value={dimensions}
-            onChange={handleDimensions}
-          /> */}
+        margin="dense"
+        label="Dimensions"
+        type="text"
+        fullWidth
+        value={dimensions}
+        onChange={handleDimensions}
+      /> */}
           {/* <TextField
-            margin="dense"
-            label="Farmer ID"
-            type="text"
-            fullWidth
-            value={farmerId}
-            onChange={handleFarmerIdChange}
-          /> */}
+        margin="dense"
+        label="Farmer ID"
+        type="text"
+        fullWidth
+        value={farmerId}
+        onChange={handleFarmerIdChange}
+      /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} variant="outlined" color="error">
@@ -185,12 +204,12 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
               padding: "10px 20px",
             }}
           >
-            Add product
+            Update product
           </Button>
         </DialogActions>
       </form>
     </Dialog>
   );
-}
+};
 
-export default UpLoadProduct;
+export default UpdateProduct;

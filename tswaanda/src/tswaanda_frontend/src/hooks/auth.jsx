@@ -3,8 +3,8 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 
 const canisterId = "s55qq-oqaaa-aaaaa-aaakq-cai";
 
-import { useContext } from "react";
-import { UserContext } from "../UserContext";
+// import { useContext } from "react";
+// import { UserContext } from "../UserContext";
 
 // interface authHandlerProps {
 //     successHandler?: Function;

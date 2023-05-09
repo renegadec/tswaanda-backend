@@ -11,6 +11,8 @@ import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Trie "mo:base/Trie";
 import Int32 "mo:base/Int32";
+import Nat8 "mo:base/Nat8";
+import Text "mo:base/Text";
 
 actor Store {
     public type Id = Nat32;
@@ -19,6 +21,7 @@ actor Store {
     type Product = {
         name : Text;
         price : Int32;
+        image : [Nat8];
         minOrder : Int32;
         shortDescription : Text;
         fullDescription : Text;
@@ -30,6 +33,7 @@ actor Store {
         id : Id;
         name : Text;
         price : Int32;
+        image : [Nat8];
         minOrder : Int32;
         shortDescription : Text;
         fullDescription : Text;
@@ -61,8 +65,12 @@ actor Store {
     };
 
     public query func getAllProducts() : async [ProductWithId] {
-        let productsAsArray = Trie.toArray<Id, Product, ProductWithId>(products, transform);
-        return productsAsArray;
+        if (Trie.size(products) == 0) {
+            return [];
+        } else {
+            let productsAsArray = Trie.toArray<Id, Product, ProductWithId>(products, transform);
+            return productsAsArray;
+        };
     };
 
     public query func getProductById(id : Id) : async ?Product {
@@ -75,6 +83,7 @@ actor Store {
             id = id;
             name = prd.name;
             price = prd.price;
+            image = prd.image;
             minOrder = prd.minOrder;
             shortDescription = prd.shortDescription;
             fullDescription = prd.fullDescription;
@@ -115,4 +124,3 @@ actor Store {
         return true;
     };
 };
-

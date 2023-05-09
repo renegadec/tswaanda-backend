@@ -12,24 +12,57 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Header from "../../components/Header";
-import { useGetProductsQuery } from "../../state/api";
 
 import UpLoadProduct from "../../scenes/upload";
 import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import UpdateProduct from "../update/index";
 
 const Product = ({
   id,
   name,
+  image,
   description,
   price,
+  addInfo,
+  minOrder,
+  fullDesc,
   rating,
   category,
   supply,
   stat,
+
+  updateProducts,
 }) => {
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleUpdateButton = () => {
+    setIsOpen(true);
+  };
+
+  const handleUpdatePopClose = () => {
+    setIsOpen(false);
+  };
+
+  const productInfo = {
+    id: id,
+    name: name,
+    image: image,
+    price: price,
+    minOrder: minOrder,
+    shortDescription: description,
+    fullDescription: fullDesc,
+    category: category,
+    additionalInformation: addInfo,
+  };
+
+  const handleDelete = async () => {
+    await tswaanda_backend.deleteProduct(id);
+    updateProducts(true);
+  };
 
   return (
     <Card
@@ -65,6 +98,25 @@ const Product = ({
         >
           See More
         </Button>
+        <Button
+          variant="primary"
+          size="small"
+          onClick={handleUpdateButton}
+          // onClick={() => setIsExpanded(!isExpanded)}
+        >
+          Update
+        </Button>
+        {isOpen && (
+          <UpdateProduct
+            productInfo={productInfo}
+            setProductsUpdated={updateProducts}
+            isOpen={isOpen}
+            onClose={handleUpdatePopClose}
+          />
+        )}
+        <Button variant="primary" size="small" onClick={handleDelete}>
+          <DeleteIcon />
+        </Button>
       </CardActions>
       <Collapse
         in={isExpanded}
@@ -89,20 +141,19 @@ const Product = ({
 
 const Products = () => {
   const theme = useTheme();
-  const { data, isLoading } = useGetProductsQuery();
 
   // Fetching products from motoko backend
 
   const [products, setProducts] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [postUpdated, setPostsUpdated] = useState(false);
+  const [productsUpdated, setProductsUpdated] = useState(false);
 
   const getProducts = async () => {
     setLoading(true);
     const products = await tswaanda_backend.getAllProducts();
     setProducts(products);
     setLoading(false);
-    setPostsUpdated(false);
+    setProductsUpdated(false);
   };
 
   useEffect(() => {
@@ -110,10 +161,10 @@ const Products = () => {
   }, []);
 
   useEffect(() => {
-    if (postUpdated) {
+    if (productsUpdated) {
       getProducts();
     }
-  }, [postUpdated]);
+  }, [productsUpdated]);
 
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
 
@@ -147,7 +198,7 @@ const Products = () => {
         </Button>
         {isOpen && (
           <UpLoadProduct
-            setPostsUpdated={setPostsUpdated}
+            setProductsUpdated={setProductsUpdated}
             isOpen={isOpen}
             onClose={handleUpLoadPopClose}
           />
@@ -170,10 +221,14 @@ const Products = () => {
             ({
               id,
               name,
+              image,
+              minOrder,
               shortDescription,
+              fullDescription,
               price,
               rating,
               category,
+              additionalInformation,
               supply,
               stat,
             }) => (
@@ -181,12 +236,17 @@ const Products = () => {
                 key={id}
                 id={id}
                 name={name}
+                image={image}
+                minOrder={minOrder}
                 description={shortDescription}
+                fullDesc={fullDescription}
+                addInfo={additionalInformation}
                 price={price}
                 rating="4"
                 category={category}
                 supply="supply"
                 stat="stats"
+                updateProducts={setProductsUpdated}
               />
             )
           )}
