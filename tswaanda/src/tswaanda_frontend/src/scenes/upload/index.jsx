@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -23,19 +23,43 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [category, setCategory] = useState("");
   const [weight, setWeight] = useState(null);
   const [availability, setAvailability] = useState("");
-  const [productImage, setProductImage] = useState(null);
+  const [mainImage, setMainImage] = useState(null);
+  const [image1, setImage1] = useState(null);
+  const [image2, setImage2] = useState(null);
+  const [image3, setImage3] = useState(null);
+  const [uploadingImages, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
   //   const [dimensions, setDimensions] = useState("");
   //   const [farmerId, setFarmerId] = useState("");
 
+  const handleImageInputChange = (e) => {
+    setUploading(true);
+    setMainImage(e.target.files[0]);
+    setImage1(e.target.files[1]);
+    setImage2(e.target.files[2]);
+    setImage3(e.target.files[3]);
+  };
+
+  useEffect(() => {
+    if (mainImage && image1 && image2 && image3) {
+      setUploading(false);
+    }
+  }, [mainImage, image1, image2, image3]);
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    setSaving(true)
 
-    const imageByteData = [...new Uint8Array(await productImage.arrayBuffer())];
+    const mainImageBytes = [...new Uint8Array(await mainImage.arrayBuffer())];
+    const image1Bytes = [...new Uint8Array(await image1.arrayBuffer())];
+    const image2Bytes = [...new Uint8Array(await image2.arrayBuffer())];
+    const image3Bytes = [...new Uint8Array(await image3.arrayBuffer())];
 
     const newProduct = {
       name: productName,
       price: parseInt(price),
-      image: imageByteData,
+      image: mainImageBytes,
       minOrder: parseInt(minOrder),
       shortDescription: shortDescription,
       fullDescription: fullDesc,
@@ -45,9 +69,16 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
         weight: parseInt(weight),
         availability: availability,
       },
+      smallImages: {
+        image1: image1Bytes,
+        image2: image2Bytes,
+        image3: image3Bytes,
+      },
     };
+
     await tswaanda_backend.createProduct(newProduct);
     setProductsUpdated(true);
+    setSaving(false)
     onClose();
   };
   return (
@@ -145,14 +176,14 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             margin="dense"
             label="Image files"
             type="file"
-            inputProps={{
-              accept: "image/*",
-            }}
             // inputProps={{
-            //   multiple: true,
+            //   accept: "image/*",
             // }}
+            inputProps={{
+              multiple: true,
+            }}
             fullWidth
-            onChange={(e) => setProductImage(e.target.files[0])}
+            onChange={handleImageInputChange}
           />
           {/* <TextField
             margin="dense"
@@ -176,6 +207,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             Cancel
           </Button>
           <Button
+            disabled={uploadingImages || saving}
             type="submit"
             variant="contained"
             color="success"

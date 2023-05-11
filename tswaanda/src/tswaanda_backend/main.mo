@@ -26,6 +26,7 @@ actor Store {
         shortDescription : Text;
         fullDescription : Text;
         category : Text;
+        smallImages : SmallImages;
         additionalInformation : AdditionalInformation;
     };
 
@@ -39,12 +40,19 @@ actor Store {
         fullDescription : Text;
         category : Text;
         additionalInformation : AdditionalInformation;
+        smallImages : SmallImages;
     };
 
     type AdditionalInformation = {
         price : Int32;
         weight : Int32;
         availability : Text;
+    };
+
+    type SmallImages = {
+        image1 : [Nat8];
+        image2 : [Nat8];
+        image3 : [Nat8];
     };
 
     // the data structure to store the products.
@@ -89,6 +97,7 @@ actor Store {
             fullDescription = prd.fullDescription;
             category = prd.category;
             additionalInformation = prd.additionalInformation;
+            smallImages = prd.smallImages;
         };
         return newProductWithId;
     };

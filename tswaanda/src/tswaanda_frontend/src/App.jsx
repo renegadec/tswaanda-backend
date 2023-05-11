@@ -29,20 +29,29 @@ import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
 
 function App() {
-  const [session, setSession] = useState(false);
+  const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
 
-  const ProtectedRoutes = () => {
-    return session ? <Outlet /> : <Navigate to="/login" />;
-  };
-
-  const checkAuth = async () => {
-    if (await isLoggedIn()) setSession(true);
-  };
-
   useEffect(() => {
+    const checkAuth = async () => {
+      if (await isLoggedIn()) {
+        setSession(true);
+      } else {
+        setSession(false);
+      }
+    };
     checkAuth();
-  }, []);
+  }, [isLoggedIn]);
+
+  const ProtectedRoutes = () => {
+    if (session) {
+      return <Outlet />;
+    } else if (session == false) {
+      return <Navigate to="/login" />;
+    } else {
+      return <h3>Loading...</h3>;
+    }
+  };
 
   const mode = useSelector((state) => state.global.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);

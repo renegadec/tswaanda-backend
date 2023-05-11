@@ -35,24 +35,53 @@ const UpdateProduct = ({
   const [availability, setAvailability] = useState(
     productInfo.additionalInformation.availability
   );
-  const [image, setImage] = useState(null);
-  const [imageBytesData, setBytesImage] = useState(productInfo.image);
+  const [mainImage, setMainImage] = useState(null);
+  const [image1, setImage1] = useState(null);
+  const [image2, setImage2] = useState(null);
+  const [image3, setImage3] = useState(null);
+  const [mainImageBytes, setBytesImage] = useState(productInfo.image);
+  const [image1Bytes, setImage1Bytes] = useState(
+    productInfo.smallImages.image1
+  );
+  const [image2Bytes, setImage2Bytes] = useState(
+    productInfo.smallImages.image2
+  );
+  const [image3Bytes, setImage3Bytes] = useState(
+    productInfo.smallImages.image3
+  );
+  const [updating, setUpdating] = useState(false);
 
   const handleImageChange = async (e) => {
-    setImage(e.target.files[0]);
+    setMainImage(e.target.files[0]);
+    setImage1(e.target.files[1]);
+    setImage2(e.target.files[2]);
+    setImage3(e.target.files[3]);
   };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    setUpdating(true);
 
-    if (image) {
-      const imageData = [...new Uint8Array(await image.arrayBuffer())];
-      setBytesImage(imageData)
+    if (mainImage) {
+      const mainImageData = [...new Uint8Array(await mainImage.arrayBuffer())];
+      setBytesImage(mainImageData);
+    }
+    if (image1) {
+      const image1Data = [...new Uint8Array(await image1.arrayBuffer())];
+      setImage1Bytes(image1Data);
+    }
+    if (image2) {
+      const image2Data = [...new Uint8Array(await image2.arrayBuffer())];
+      setImage2Bytes(image2Data);
+    }
+    if (image3) {
+      const image3Data = [...new Uint8Array(await image3.arrayBuffer())];
+      setImage3Bytes(image3Data);
     }
 
     const updatedProduct = {
       name: productName,
-      image: imageBytesData,
+      image: mainImageBytes,
       price: parseInt(price),
       minOrder: parseInt(minOrder),
       shortDescription: shortDescription,
@@ -63,9 +92,15 @@ const UpdateProduct = ({
         weight: parseInt(weight),
         availability: availability,
       },
+      smallImages: {
+        image1: image1Bytes,
+        image2: image2Bytes,
+        image3: image3Bytes,
+      },
     };
     await tswaanda_backend.updateProduct(id, updatedProduct);
     setProductsUpdated(true);
+    setUpdating(false);
     onClose();
   };
 
@@ -164,12 +199,12 @@ const UpdateProduct = ({
             margin="dense"
             label="Image files"
             type="file"
-            inputProps={{
-              accept: "image/*",
-            }}
             // inputProps={{
-            //   multiple: true,
+            //   accept: "image/*",
             // }}
+            inputProps={{
+              multiple: true,
+            }}
             fullWidth
             onChange={handleImageChange}
           />
@@ -195,6 +230,7 @@ const UpdateProduct = ({
             Cancel
           </Button>
           <Button
+          disabled={updating}
             type="submit"
             variant="contained"
             color="success"
