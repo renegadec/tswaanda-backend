@@ -26,7 +26,7 @@ const Product = ({
   description,
   price,
   addInfo,
-  smallImages,
+  images,
   minOrder,
   fullDesc,
   rating,
@@ -58,7 +58,7 @@ const Product = ({
     fullDescription: fullDesc,
     category: category,
     additionalInformation: addInfo,
-    smallImages: smallImages
+    images: images
   };
 
   const handleDelete = async () => {
@@ -231,7 +231,7 @@ const Products = () => {
               rating,
               category,
               additionalInformation,
-              smallImages,
+              images,
               supply,
               stat,
             }) => (
@@ -244,7 +244,7 @@ const Products = () => {
                 description={shortDescription}
                 fullDesc={fullDescription}
                 addInfo={additionalInformation}
-                smallImages={smallImages}
+                images={images}
                 price={price}
                 rating="4"
                 category={category}
