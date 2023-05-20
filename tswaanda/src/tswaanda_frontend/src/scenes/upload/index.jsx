@@ -27,6 +27,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
   const [image3, setImage3] = useState(null);
+  // const [image4, setImage4] = useState(null);
   const [uploadingImages, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -39,6 +40,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
     setImage1(e.target.files[1]);
     setImage2(e.target.files[2]);
     setImage3(e.target.files[3]);
+    // setImage4(e.target.files[4]);
   };
 
   useEffect(() => {
@@ -55,6 +57,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
     const image1Bytes = [...new Uint8Array(await image1.arrayBuffer())];
     const image2Bytes = [...new Uint8Array(await image2.arrayBuffer())];
     const image3Bytes = [...new Uint8Array(await image3.arrayBuffer())];
+    // const image4Bytes = [...new Uint8Array(await image4.arrayBuffer())];
 
     const newProduct = {
       name: productName,
@@ -69,10 +72,11 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
         weight: parseInt(weight),
         availability: availability,
       },
-      smallImages: {
+      images: {
         image1: image1Bytes,
         image2: image2Bytes,
         image3: image3Bytes,
+        // image4: image4Bytes,
       },
     };
 
