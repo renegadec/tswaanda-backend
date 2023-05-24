@@ -39,56 +39,45 @@ const UpdateProduct = ({
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
   const [image3, setImage3] = useState(null);
-  // const [image4, setImage4] = useState(null);
   const [mainImageBytes, setBytesImage] = useState(productInfo.image);
-  const [image1Bytes, setImage1Bytes] = useState(
-    productInfo.images.image1
-  );
-  const [image2Bytes, setImage2Bytes] = useState(
-    productInfo.images.image2
-  );
-  const [image3Bytes, setImage3Bytes] = useState(
-    productInfo.images.image3
-  );
-  // const [image4Bytes, setImage4Bytes] = useState(
-  //   productInfo.images.image4
-  // );
+  const [image1Bytes, setImage1Bytes] = useState(productInfo.images.image1);
+  const [image2Bytes, setImage2Bytes] = useState(productInfo.images.image2);
+  const [image3Bytes, setImage3Bytes] = useState(productInfo.images.image3);
   const [updating, setUpdating] = useState(false);
+  const [uploadingImages, setUploading] = useState(false);
 
   const handleImageChange = async (e) => {
+    setUploading(true);
     setMainImage(e.target.files[0]);
     setImage1(e.target.files[1]);
     setImage2(e.target.files[2]);
     setImage3(e.target.files[3]);
-    // setImage4(e.target.files[4]);
   };
+
+  const convertToBytes = async (image) => {
+    const imageBytes = [...new Uint8Array(await image.arrayBuffer())];
+    return imageBytes;
+  };
+
+  useEffect(() => {
+    if (mainImage && image1 && image2 && image3) {
+      const update = async () => {
+        setBytesImage(await convertToBytes(mainImage));
+        setImage1Bytes(await convertToBytes(image1));
+        setImage2Bytes(await convertToBytes(image2));
+        setImage3Bytes(await convertToBytes(image3));
+        setUploading(false);
+      };
+      update();
+    }
+  }, [mainImage, image1, image2, image3]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     setUpdating(true);
 
-    if (mainImage) {
-      const mainImageData = [...new Uint8Array(await mainImage.arrayBuffer())];
-      setBytesImage(mainImageData);
-    }
-    if (image1) {
-      const image1Data = [...new Uint8Array(await image1.arrayBuffer())];
-      setImage1Bytes(image1Data);
-    }
-    if (image2) {
-      const image2Data = [...new Uint8Array(await image2.arrayBuffer())];
-      setImage2Bytes(image2Data);
-    }
-    if (image3) {
-      const image3Data = [...new Uint8Array(await image3.arrayBuffer())];
-      setImage3Bytes(image3Data);
-    }
-    // if (image4) {
-    //   const image4Data = [...new Uint8Array(await image4.arrayBuffer())];
-    //   setImage4Bytes(image4Data);
-    // }
-
     const updatedProduct = {
+      id: id,
       name: productName,
       image: mainImageBytes,
       price: parseInt(price),
@@ -105,7 +94,6 @@ const UpdateProduct = ({
         image1: image1Bytes,
         image2: image2Bytes,
         image3: image3Bytes,
-        // image4: image4Bytes,
       },
     };
     await tswaanda_backend.updateProduct(id, updatedProduct);
@@ -240,7 +228,7 @@ const UpdateProduct = ({
             Cancel
           </Button>
           <Button
-          disabled={updating}
+            disabled={updating || uploadingImages}
             type="submit"
             variant="contained"
             color="success"

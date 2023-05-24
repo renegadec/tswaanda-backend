@@ -39,7 +39,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  if(!session) return null;
+  if (!session) return null;
 
   return (
     <AppBar
@@ -52,9 +52,9 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* LEFT SIDE */}
         <FlexBetween>
-            <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-              <MenuIcon />
-            </IconButton>
+          <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <MenuIcon />
+          </IconButton>
           <FlexBetween
             backgroundColor={theme.palette.background.alt}
             borderRadius="9px"
@@ -128,7 +128,14 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <MenuItem onClick={() => logout()}>Log Out</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  logout();
+                  window.location.reload();
+                }}
+              >
+                Log Out
+              </MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>

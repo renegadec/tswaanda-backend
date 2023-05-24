@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
+import { v4 as uuidv4 } from "uuid";
 
 function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [minOrder, setMinOrder] = useState(null);
@@ -27,7 +28,6 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
   const [image3, setImage3] = useState(null);
-  // const [image4, setImage4] = useState(null);
   const [uploadingImages, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -40,7 +40,6 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
     setImage1(e.target.files[1]);
     setImage2(e.target.files[2]);
     setImage3(e.target.files[3]);
-    // setImage4(e.target.files[4]);
   };
 
   useEffect(() => {
@@ -51,15 +50,15 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true)
+    setSaving(true);
 
     const mainImageBytes = [...new Uint8Array(await mainImage.arrayBuffer())];
     const image1Bytes = [...new Uint8Array(await image1.arrayBuffer())];
     const image2Bytes = [...new Uint8Array(await image2.arrayBuffer())];
     const image3Bytes = [...new Uint8Array(await image3.arrayBuffer())];
-    // const image4Bytes = [...new Uint8Array(await image4.arrayBuffer())];
 
     const newProduct = {
+      id: uuidv4(),
       name: productName,
       price: parseInt(price),
       image: mainImageBytes,
@@ -76,7 +75,6 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
         image1: image1Bytes,
         image2: image2Bytes,
         image3: image3Bytes,
-        // image4: image4Bytes,
       },
     };
 
