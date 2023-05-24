@@ -1,4 +1,4 @@
-/**
+/*
  * Module     : main.mo
  * Copyright  : Confidence Nyirenda
  * License    : MIT
@@ -11,126 +11,152 @@ import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Trie "mo:base/Trie";
 import Int32 "mo:base/Int32";
-import Nat8 "mo:base/Nat8";
 import Text "mo:base/Text";
+import AssocList "mo:base/AssocList";
+import Error "mo:base/Error";
+import List "mo:base/List";
 
-actor Store {
-    public type Id = Nat32;
-    private stable var next : Id = 0;
+import Type "types";
+import Debug "mo:base/Debug";
+import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
+import Result "mo:base/Result";
 
-    type Product = {
-        name : Text;
-        price : Int32;
-        image : [Nat8];
-        minOrder : Int32;
-        shortDescription : Text;
-        fullDescription : Text;
-        category : Text;
-        images : SmallImages;
-        additionalInformation : AdditionalInformation;
+shared ({ caller = initializer }) actor class () {
+
+    type Id = Text;
+    type Product = Type.Product;
+    type Role = Type.Role;
+    type Permission = Type.Permission;
+
+    //Access control variables
+    private stable var roles : AssocList.AssocList<Principal, Role> = List.nil();
+    private stable var role_requests : AssocList.AssocList<Principal, Role> = List.nil();
+
+    //Products variables
+    private stable var productsEntries : [(Text, Product)] = [];
+    var products = HashMap.HashMap<Text, Product>(0, Text.equal, Text.hash);
+
+    //Access Control implimantaion
+
+    // Determine if a principal has a role with permissions
+    func has_permission(pal : Principal, perm : Permission) : Bool {
+        let role = get_role(pal);
+        switch (role, perm) {
+            case (? #owner or ? #admin, _) true;
+            case (? #authorized, #lowest) true;
+            case (_, _) false;
+        };
     };
 
-    type ProductWithId = {
-        id : Id;
-        name : Text;
-        price : Int32;
-        image : [Nat8];
-        minOrder : Int32;
-        shortDescription : Text;
-        fullDescription : Text;
-        category : Text;
-        additionalInformation : AdditionalInformation;
-        images : SmallImages;
+    func principal_eq(a : Principal, b : Principal) : Bool {
+        return a == b;
     };
 
-    type AdditionalInformation = {
-        price : Int32;
-        weight : Int32;
-        availability : Text;
-    };
-
-    type SmallImages = {
-        image1 : [Nat8];
-        image2 : [Nat8];
-        image3 : [Nat8];
-        // image4 : [Nat8];
-    };
-
-    // the data structure to store the products.
-    private stable var products : Trie.Trie<Id, Product> = Trie.empty();
-
-    // adds new product
-    public func createProduct(newProduct : Product) : async Id {
-        let id = next;
-        next +%= 1;
-        products := Trie.replace(
-            products,
-            key(id),
-            eq,
-            ?newProduct,
-        ).0;
-
-        return id;
-    };
-
-    public query func getAllProducts() : async [ProductWithId] {
-        if (Trie.size(products) == 0) {
-            return [];
+    func get_role(pal : Principal) : ?Role {
+        if (pal == initializer) {
+            ? #owner;
         } else {
-            let productsAsArray = Trie.toArray<Id, Product, ProductWithId>(products, transform);
-            return productsAsArray;
+            AssocList.find<Principal, Role>(roles, pal, principal_eq);
         };
     };
 
-    public query func getProductById(id : Id) : async ?Product {
-        let result = Trie.find(products, key(id), eq);
-        return result;
-    };
-
-    private func transform(id : Id, prd : Product) : ProductWithId {
-        let newProductWithId : ProductWithId = {
-            id = id;
-            name = prd.name;
-            price = prd.price;
-            image = prd.image;
-            minOrder = prd.minOrder;
-            shortDescription = prd.shortDescription;
-            fullDescription = prd.fullDescription;
-            category = prd.category;
-            additionalInformation = prd.additionalInformation;
-            images = prd.images;
+    // Reject unauthorized user identities
+    func require_permission(pal : Principal, perm : Permission) : async () {
+        if (has_permission(pal, perm) == false) {
+            throw Error.reject("unauthorized");
         };
-        return newProductWithId;
     };
 
-    private func eq(x : Id, y : Id) : Bool {
-        return x == y;
-    };
+    // Return the role of the result caller/user identity
+    // public shared({ caller }) func my_role() : async ?Role {
+    //     let role =  get_role(caller);
+    //     Debug.print(debug_show(role));
+    //     return role;
+    // };
 
-    private func key(x : Id) : Trie.Key<Id> {
-        return { hash = x; key = x };
-    };
-
-    public func updateProduct(productId : Id, product : Product) : async Bool {
-        let existingProduct = Trie.find(products, key(productId), eq);
-        if (existingProduct == null) {
-            return false;
+    public shared ({ caller }) func my_role() : async Text {
+        let role = get_role(caller);
+        switch (role) {
+            case (null) {
+                return "null";
+            };
+            case (? #owner) {
+                return "owner";
+            };
+            case (? #admin) {
+                return "admin";
+            };
+            case (? #authorized) {
+                return "authorized";
+            };
         };
-        products := Trie.replace(
-            products,
-            key(productId),
-            eq,
-            ?product,
-        ).0;
+    };
+
+    // Assign a new role to a principal
+    public shared ({ caller }) func assign_role(assignee : Principal, new_role : ?Role) : async () {
+        await require_permission(caller, #assign_role);
+
+        switch new_role {
+            case (? #owner) {
+                throw Error.reject("Cannot assign anyone to be the owner");
+            };
+            case (_) {};
+        };
+        if (assignee == initializer) {
+            throw Error.reject("Cannot assign a role to the canister owner");
+        };
+        roles := AssocList.replace<Principal, Role>(roles, assignee, principal_eq, new_role).0;
+        role_requests := AssocList.replace<Principal, Role>(role_requests, assignee, principal_eq, null).0;
+    };
+
+    public func createProduct(newProduct : Product) : async Text {
+        switch (products.put(newProduct.id, newProduct)) {
+            case () { return newProduct.id };
+        };
+        return "Error";
+    };
+
+    public query func getAllProducts() : async [Product] {
+        let productsArray = Iter.toArray(products.vals());
+        return productsArray;
+    };
+
+    public shared query func getProductById(id : Id) : async Result.Result<Product, Text> {
+        switch (products.get(id)) {
+            case (null) {
+                return #err("Invalid result ID");
+            };
+            case (?result) {
+                return #ok(result);
+            };
+        };
+    };
+
+    public func updateProduct(id : Text, product : Product) : async Bool {
+        switch (products.get(id)) {
+            case (null) {
+                return false;
+            };
+            case (?result) {
+                let updateProduct : Product = product;
+                ignore products.replace(id, updateProduct);
+                return true;
+            };
+        };
+    };
+
+    public shared func deleteProduct(id : Text) : async Bool {
+        products.delete(id);
         return true;
+
     };
 
-    public func deleteProduct(productId : Id) : async Bool {
-        let existingProduct = Trie.find(products, key(productId), eq);
-        if (existingProduct == null) {
-            return false;
-        };
-        products := Trie.remove(products, key(productId), eq).0;
-        return true;
+    system func preupgrade() {
+        productsEntries := Iter.toArray(products.entries());
+    };
+
+    system func postupgrade() {
+        products := HashMap.fromIter<Text, Product>(productsEntries.vals(), 0, Text.equal, Text.hash);
     };
 };

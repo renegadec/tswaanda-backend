@@ -24,13 +24,46 @@ import Breakdown from "./scenes/breakdown";
 import Admin from "./scenes/admin";
 import Performance from "./scenes/performance";
 import Login from "./scenes/login";
+import { AuthClient } from "@dfinity/auth-client";
 
 import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
+import {
+  canisterId,
+  createActor,
+} from "../../declarations/tswaanda_backend/index";
 
 function App() {
   const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
+  const [authorized, setAuthorized] = useState(null);
+
+  const getRole = async () => {
+    const authClient = await AuthClient.create();
+
+    if (await authClient.isAuthenticated()) {
+      const identity = await authClient.getIdentity();
+      const userPrincipal = identity._principal.toString();
+      console.log(userPrincipal);
+      const Actor = createActor(canisterId, {
+        agentOptions: {
+          identity,
+        },
+      });
+      try {
+        const role = await Actor.my_role();
+        if (role === "null") {
+          setAuthorized(false);
+        } else {
+          setAuthorized(true);
+        }
+        console.log("User role: ", role);
+      } catch (error) {
+        setAuthorized(false)
+        console.log(error);
+      }
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -43,12 +76,20 @@ function App() {
     checkAuth();
   }, [isLoggedIn]);
 
-  const ProtectedRoutes = () => {
+  useEffect(() => {
     if (session) {
+      getRole();
+    }
+  }, [session]);
+
+  const ProtectedRoutes = () => {
+    if (session && authorized) {
       return <Outlet />;
     } else if (session == false) {
       return <Navigate to="/login" />;
-    } else {
+    } else if (session && authorized === false) {
+      return <h3>You are unauthorized</h3>;
+    } else if (session === null || authorized === null) {
       return <h3>Loading...</h3>;
     }
   };
