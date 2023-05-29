@@ -59,7 +59,7 @@ function App() {
         }
         console.log("User role: ", role);
       } catch (error) {
-        setAuthorized(false)
+        setAuthorized(false);
         console.log(error);
       }
     }
@@ -85,12 +85,14 @@ function App() {
   const ProtectedRoutes = () => {
     if (session && authorized) {
       return <Outlet />;
-    } else if (session == false) {
+    } else if (session === false) {
       return <Navigate to="/login" />;
     } else if (session && authorized === false) {
       return <h3>You are unauthorized</h3>;
-    } else if (session === null || authorized === null) {
+    } else if (session === null) {
       return <h3>Loading...</h3>;
+    } else if (authorized === null) {
+      return <h3>Checking...</h3>;
     }
   };
 
