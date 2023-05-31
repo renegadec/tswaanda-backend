@@ -32,11 +32,12 @@ import {
   canisterId,
   createActor,
 } from "../../declarations/tswaanda_backend/index";
+import Token from "./scenes/token/index";
 
 function App() {
   const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
-  const [authorized, setAuthorized] = useState(null);
+  const [authorized, setAuthorized] = useState(true);
 
   const getRole = async () => {
     const authClient = await AuthClient.create();
@@ -50,18 +51,18 @@ function App() {
           identity,
         },
       });
-      try {
-        const role = await Actor.my_role();
-        if (role === "null") {
-          setAuthorized(false);
-        } else {
-          setAuthorized(true);
-        }
-        console.log("User role: ", role);
-      } catch (error) {
-        setAuthorized(false);
-        console.log(error);
-      }
+      // try {
+      //   const role = await Actor.my_role();
+      //   if (role === "null") {
+      //     setAuthorized(false);
+      //   } else {
+      //     setAuthorized(true);
+      //   }
+      //   console.log("User role: ", role);
+      // } catch (error) {
+      //   setAuthorized(false);
+      //   console.log(error);
+      // }
     }
   };
 
@@ -117,6 +118,7 @@ function App() {
                   <Route path="/products" element={<Products />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/transactions" element={<Transactions />} />
+                  <Route path="/token" element={<Token />} />
                   <Route path="/geography" element={<Geography />} />
                   <Route path="/overview" element={<Overview />} />
                   <Route path="/daily" element={<Daily />} />

@@ -27,6 +27,7 @@ import {
     AdminPanelSettingsOutlined,
     TrendingUpOutlined,
     PieChartOutlined,
+    PaidOutlined
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
@@ -55,6 +56,10 @@ const navItems = [
     {
         text: "Geography",
         icon: <PublicOutlined />,
+    },
+    {
+        text: "Token",
+        icon: <PaidOutlined />,
     },
     {
         text: "Sales",

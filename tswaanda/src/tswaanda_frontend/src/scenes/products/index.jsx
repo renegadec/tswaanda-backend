@@ -66,8 +66,6 @@ const Product = ({
     updateProducts(true);
   };
 
-  console.log(productInfo)
-
   return (
     <Card
       sx={{
