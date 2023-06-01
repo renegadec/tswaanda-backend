@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
+import { v4 as uuidv4 } from "uuid";
 
 function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [minOrder, setMinOrder] = useState(null);
@@ -49,7 +50,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true)
+    setSaving(true);
 
     const mainImageBytes = [...new Uint8Array(await mainImage.arrayBuffer())];
     const image1Bytes = [...new Uint8Array(await image1.arrayBuffer())];
@@ -57,6 +58,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
     const image3Bytes = [...new Uint8Array(await image3.arrayBuffer())];
 
     const newProduct = {
+      id: uuidv4(),
       name: productName,
       price: parseInt(price),
       image: mainImageBytes,
@@ -69,7 +71,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
         weight: parseInt(weight),
         availability: availability,
       },
-      smallImages: {
+      images: {
         image1: image1Bytes,
         image2: image2Bytes,
         image3: image3Bytes,
