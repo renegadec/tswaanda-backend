@@ -32,7 +32,7 @@ import {
   canisterId,
   createActor,
 } from "../../declarations/tswaanda_backend/index";
-import Token from "./scenes/token/index";
+import Wallet from "./scenes/wallet/index";
 
 function App() {
   const [session, setSession] = useState(null);
@@ -118,7 +118,7 @@ function App() {
                   <Route path="/products" element={<Products />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/transactions" element={<Transactions />} />
-                  <Route path="/token" element={<Token />} />
+                  <Route path="/wallet" element={<Wallet />} />
                   <Route path="/geography" element={<Geography />} />
                   <Route path="/overview" element={<Overview />} />
                   <Route path="/daily" element={<Daily />} />

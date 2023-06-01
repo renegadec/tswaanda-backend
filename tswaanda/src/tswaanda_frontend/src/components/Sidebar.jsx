@@ -58,7 +58,7 @@ const navItems = [
         icon: <PublicOutlined />,
     },
     {
-        text: "Token",
+        text: "Wallet",
         icon: <PaidOutlined />,
     },
     {
