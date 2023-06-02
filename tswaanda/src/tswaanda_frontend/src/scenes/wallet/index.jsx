@@ -18,10 +18,10 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import Accordion from '@mui/material/Accordion';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import Header from "../../components/Header";
 
@@ -39,20 +39,43 @@ const Wallet = () => {
   const [contract, setContract] = useState(null);
   const [usdval, setUSDVal] = useState(null);
   const [metadata, setMetadata] = useState(null);
-  const [tokenBal, setBal] = useState(null);
 
   const [balance, setBalance] = useState(0);
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [account, setAccount] = useState('');
+  const [tokenAmount, setTokenAmount] = useState("");
+  const [account, setAccount] = useState("");
 
   // Logic for sending tokens
-  const handleSendTokens = () => {
-    console.log('Sending tokens:', tokenAmount, 'to account:', account);
+  const handleSendTokens = async () => {
+    if (account != "" && tokenAmount) {
+      try {
+        const amount = Big(tokenAmount)
+          .times(10 ** 24)
+          .toFixed();
+        const res = await contract.ft_transfer(
+          { receiver_id: account, amount: amount },
+          gas,
+          1
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   // Logic for adding an account
-  const handleAddAccount = () => {
-    console.log('Adding account:', account);
+  const handleAddAccount = async () => {
+    if (account != "") {
+      try {
+        const result = await contract.storage_deposit(
+          { account_id: account },
+          gas,
+          "1250000000000000000000"
+        );
+        console.log(result);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handleChange = (panel) => (event, isExpanded) => {
@@ -77,7 +100,6 @@ const Wallet = () => {
   useEffect(() => {
     async function fetchData() {
       const contractData = await initContract();
-      console.log(contractData);
       setUser(contractData.currentUser);
       setConfig(contractData.nearConfig);
       setWallet(contractData.walletConnection);
@@ -92,7 +114,7 @@ const Wallet = () => {
       const formattedBal = bal / 1000000000000000000000000;
       const roundedBal = formattedBal.toFixed(2);
       setUSDVal(roundedBal);
-      setBal(formattedBal);
+      setBalance(formattedBal);
     }
   };
 
@@ -102,96 +124,70 @@ const Wallet = () => {
     }
   }, [user]);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (newAcc != "") {
-      try {
-        const result = await contract.storage_deposit(
-          { account_id: newAcc },
-          gas,
-          "1250000000000000000000"
-        );
-        console.log(result);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
-  const handleTransfer = async (e) => {
-    e.preventDefault();
-    if (transferAcc != "" && transferAmnt) {
-      try {
-        const amount = Big(transferAmnt)
-          .times(10 ** 24)
-          .toFixed();
-        const res = await contract.ft_transfer(
-          { receiver_id: transferAcc, amount: amount, memo: memo },
-          gas,
-          1
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   return (
     <div>
       <Box m="1.5rem 2.5rem">
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Header title="Tswaanda Token" subtitle="Managing tswaanda token" />
-              <Button
-                variant="contained"
-                onClick={handleContract}
-                sx={{
-                  backgroundColor: theme.palette.secondary.light,
-                  color: theme.palette.background.alt,
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  padding: "10px 20px",
-                }}
-              >
-                Connect Wallet
-              </Button>
-          </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Header title="Tswaanda Token" subtitle="Managing tswaanda token" />
+          <Button
+            variant="contained"
+            onClick={handleContract}
+            sx={{
+              backgroundColor: theme.palette.secondary.light,
+              color: theme.palette.background.alt,
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+          >
+            {user ? "Remove Wallet" : "Connect Wallet"}
+          </Button>
+        </Box>
       </Box>
-      <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} sx={{backgroundColor: theme.palette.background.alt}}>
+      <Accordion
+        expanded={expanded === "panel1"}
+        onChange={handleChange("panel1")}
+        sx={{ backgroundColor: theme.palette.background.alt }}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1bh-content"
           id="panel1bh-header"
         >
-          <Typography sx={{ width: '33%', flexShrink: 0 }}>
+          <Typography sx={{ width: "33%", flexShrink: 0 }}>
             Wallet Balance
           </Typography>
-          <Typography sx={{ color: 'text.secondary' }}>Total balance in admin wallet</Typography>
+          <Typography sx={{ color: "text.secondary" }}>
+            Total balance in admin wallet
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
-            Balance
-          </Typography>
+          <Typography>{user ? `${balance} TSWT` : "Wallet not connected"}</Typography>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')} sx={{backgroundColor: theme.palette.background.alt}}>
+      <Accordion
+        expanded={expanded === "panel2"}
+        onChange={handleChange("panel2")}
+        sx={{ backgroundColor: theme.palette.background.alt }}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel2bh-content"
           id="panel2bh-header"
         >
-          <Typography sx={{ width: '33%', flexShrink: 0 }}>Send</Typography>
-          <Typography sx={{ color: 'text.secondary' }}>
+          <Typography sx={{ width: "33%", flexShrink: 0 }}>Send</Typography>
+          <Typography sx={{ color: "text.secondary" }}>
             Send tokens to user(s).
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Container maxWidth="sm" style={{ marginTop: '2rem' }}>
+          <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
             <TextField
               label="Token Amount"
               fullWidth
               value={tokenAmount}
               onChange={(e) => setTokenAmount(e.target.value)}
-              style={{ marginBottom: '1rem' }}
+              style={{ marginBottom: "1rem" }}
             />
 
             <TextField
@@ -199,80 +195,89 @@ const Wallet = () => {
               fullWidth
               value={account}
               onChange={(e) => setAccount(e.target.value)}
-              style={{ marginBottom: '1rem' }}
+              style={{ marginBottom: "1rem" }}
             />
 
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
-              onClick={handleSendTokens} 
-                    sx={{
-                        backgroundColor: theme.palette.secondary.light,
-                        color: theme.palette.background.alt,
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        padding: "10px 20px",
-                      }}>
+              onClick={handleSendTokens}
+              sx={{
+                backgroundColor: theme.palette.secondary.light,
+                color: theme.palette.background.alt,
+                fontSize: "14px",
+                fontWeight: "bold",
+                padding: "10px 20px",
+              }}
+            >
               Send Tokens
             </Button>
           </Container>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')} sx={{backgroundColor: theme.palette.background.alt}}>
+      <Accordion
+        expanded={expanded === "panel3"}
+        onChange={handleChange("panel3")}
+        sx={{ backgroundColor: theme.palette.background.alt }}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3bh-content"
           id="panel3bh-header"
         >
-          <Typography sx={{ width: '33%', flexShrink: 0 }}>
+          <Typography sx={{ width: "33%", flexShrink: 0 }}>
             Register user
           </Typography>
-          <Typography sx={{ color: 'text.secondary' }}>
+          <Typography sx={{ color: "text.secondary" }}>
             Add new user wallet.
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Container maxWidth="sm" style={{ marginTop: '2rem' }}>
-
+          <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
             <TextField
               label="Account"
               fullWidth
               value={account}
               onChange={(e) => setAccount(e.target.value)}
-              style={{ marginBottom: '1rem' }}
+              style={{ marginBottom: "1rem" }}
             />
 
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
-              onClick={handleSendTokens} 
-                    sx={{
-                        backgroundColor: theme.palette.secondary.light,
-                        color: theme.palette.background.alt,
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        padding: "10px 20px",
-                      }}>
+              onClick={handleAddAccount}
+              sx={{
+                backgroundColor: theme.palette.secondary.light,
+                color: theme.palette.background.alt,
+                fontSize: "14px",
+                fontWeight: "bold",
+                padding: "10px 20px",
+              }}
+            >
               Register
             </Button>
           </Container>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')} sx={{backgroundColor: theme.palette.background.alt}}>
+      <Accordion
+        expanded={expanded === "panel4"}
+        onChange={handleChange("panel4")}
+        sx={{ backgroundColor: theme.palette.background.alt }}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel4bh-content"
           id="panel4bh-header"
         >
-          <Typography sx={{ width: '33%', flexShrink: 0 }}>Transaction History</Typography>
-          <Typography sx={{ color: 'text.secondary' }}>
+          <Typography sx={{ width: "33%", flexShrink: 0 }}>
+            Transaction History
+          </Typography>
+          <Typography sx={{ color: "text.secondary" }}>
             Transaction History
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
-            Transaction history
-          </Typography>
+          <Typography>Transaction history</Typography>
         </AccordionDetails>
       </Accordion>
     </div>
