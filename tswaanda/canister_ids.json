@@ -1,15 +1,8 @@
 {
   "tswaanda_backend": {
-<<<<<<< HEAD
-    "ic": "vapn6-nyaaa-aaaak-aetgq-cai"
-  },
-  "tswaanda_frontend": {
-    "ic": "vjmgc-3qaaa-aaaak-aetha-cai"
-=======
     "ic": "56r5t-tqaaa-aaaal-qb4gq-cai"
   },
   "tswaanda_frontend": {
     "ic": "5xswp-fyaaa-aaaal-qb4ha-cai"
->>>>>>> c5f80c863ae53c04e7645d00f2e5c21df90e1559
   }
 }
