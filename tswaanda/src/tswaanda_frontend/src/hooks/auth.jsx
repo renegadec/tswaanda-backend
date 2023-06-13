@@ -1,7 +1,8 @@
 import { AuthClient } from "@dfinity/auth-client";
 import { Actor, HttpAgent } from "@dfinity/agent";
-
-const canisterId = "s55qq-oqaaa-aaaaa-aaakq-cai";
+import {
+  canisterId,
+} from "../../../declarations/tswaanda_frontend/index";
 
 // import { useContext } from "react";
 // import { UserContext } from "../UserContext";

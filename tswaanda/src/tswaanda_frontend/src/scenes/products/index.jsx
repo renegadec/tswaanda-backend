@@ -16,7 +16,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Header from "../../components/Header";
 
 import UpLoadProduct from "../../scenes/upload";
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import UpdateProduct from "../update/index";
 
 const Product = ({
@@ -39,6 +40,13 @@ const Product = ({
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const host = "https://icp0.io";
+  const agent = new HttpAgent({ host: host });
+
+  const backendActor = Actor.createActor(idlFactory, {
+    agent,
+    canisterId: canisterId,
+  });
 
   const handleUpdateButton = () => {
     setIsOpen(true);
@@ -62,7 +70,7 @@ const Product = ({
   };
 
   const handleDelete = async () => {
-    await tswaanda_backend.deleteProduct(id);
+    await backendActor.deleteProduct(id);
     updateProducts(true);
   };
 
@@ -145,6 +153,13 @@ const Products = () => {
   const theme = useTheme();
 
   // Fetching products from motoko backend
+  const host = "https://icp0.io";
+  const agent = new HttpAgent({ host: host });
+
+  const backendActor = Actor.createActor(idlFactory, {
+    agent,
+    canisterId: canisterId,
+  });
 
   const [products, setProducts] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -152,7 +167,7 @@ const Products = () => {
 
   const getProducts = async () => {
     setLoading(true);
-    const products = await tswaanda_backend.getAllProducts();
+    const products = await backendActor.getAllProducts();
     setProducts(products);
     setLoading(false);
     setProductsUpdated(false);

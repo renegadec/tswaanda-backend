@@ -4,19 +4,11 @@ import Big from "big.js";
 import { toast } from "react-toastify";
 import {
   Box,
-  AppBar,
-  Toolbar,
   Container,
   TextField,
-  Card,
-  CardActions,
-  CardContent,
-  Collapse,
   Button,
   Typography,
-  Rating,
   useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -43,6 +35,7 @@ const Wallet = () => {
   const [balance, setBalance] = useState(0);
   const [tokenAmount, setTokenAmount] = useState("");
   const [account, setAccount] = useState("");
+  const [totalSupply, setTotalSupply] = useState(null);
 
   // Logic for sending tokens
   const handleSendTokens = async () => {
@@ -110,11 +103,16 @@ const Wallet = () => {
 
   const loadContractInfo = async () => {
     let bal = await contract.ft_balance_of({ account_id: user.accountId });
+    let totalSup = await contract.ft_total_supply();
     if (bal > 0) {
       const formattedBal = bal / 1000000000000000000000000;
       const roundedBal = formattedBal.toFixed(2);
       setUSDVal(roundedBal);
       setBalance(formattedBal);
+    }
+    if (totalSup > 0) {
+      const formattedBal = totalSup / 1000000000000000000000000;
+      setTotalSupply(formattedBal);
     }
   };
 
@@ -158,11 +156,18 @@ const Wallet = () => {
             Wallet Balance
           </Typography>
           <Typography sx={{ color: "text.secondary" }}>
-            Total balance in admin wallet
+            Admin total  supply
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>{user ? `${balance} TSWT` : "Wallet not connected"}</Typography>
+          <div style={{ display: "flex" }}>
+            <Typography sx={{ width: "33%", flexShrink: 0 }}>
+              {user ? `${balance} TSWT` : "Wallet not connected"}
+            </Typography>
+            <Typography>
+              {user ? `${totalSupply} TSWT` : "Wallet not connected"}
+            </Typography>
+          </div>
         </AccordionDetails>
       </Accordion>
       <Accordion

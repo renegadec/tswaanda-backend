@@ -30,30 +30,34 @@ import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
 import {
   canisterId,
-  createActor,
+  idlFactory,
 } from "../../declarations/tswaanda_backend/index";
 import Wallet from "./scenes/wallet/index";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import Orders from "./scenes/orders/index";
 
 function App() {
   const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
   const [authorized, setAuthorized] = useState(true);
 
+  const host = "https://icp0.io";
+  const agent = new HttpAgent({ host: host });
+
+  const backendActor = Actor.createActor(idlFactory, {
+    agent,
+    canisterId: canisterId,
+  });
+
   const getRole = async () => {
     const authClient = await AuthClient.create();
-
     if (await authClient.isAuthenticated()) {
       const identity = await authClient.getIdentity();
-      const userPrincipal = identity._principal.toString();
+      const userPrincipal = identity.getPrincipal().toString();
       console.log(userPrincipal);
-      const Actor = createActor(canisterId, {
-        agentOptions: {
-          identity,
-        },
-      });
       // try {
-      //   const role = await Actor.my_role();
-      //   if (role === "null") {
+      //   const role = await backendActor.my_role();
+      //   if (role === "unauthorized") {
       //     setAuthorized(false);
       //   } else {
       //     setAuthorized(true);
@@ -119,6 +123,7 @@ function App() {
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/transactions" element={<Transactions />} />
                   <Route path="/wallet" element={<Wallet />} />
+                  <Route path="/orders" element={<Orders />} />
                   <Route path="/geography" element={<Geography />} />
                   <Route path="/overview" element={<Overview />} />
                   <Route path="/daily" element={<Daily />} />

@@ -21,6 +21,7 @@ import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
+import Buffer "mo:base/Buffer";
 
 shared ({ caller = initializer }) actor class () {
 
@@ -71,7 +72,6 @@ shared ({ caller = initializer }) actor class () {
     // Return the role of the result caller/user identity
     // public shared({ caller }) func my_role() : async ?Role {
     //     let role =  get_role(caller);
-    //     Debug.print(debug_show(role));
     //     return role;
     // };
 
@@ -79,7 +79,7 @@ shared ({ caller = initializer }) actor class () {
         let role = get_role(caller);
         switch (role) {
             case (null) {
-                return "null";
+                return "unauthorized";
             };
             case (? #owner) {
                 return "owner";
@@ -150,6 +150,19 @@ shared ({ caller = initializer }) actor class () {
         products.delete(id);
         return true;
 
+    };
+
+    public shared func filterProducts(itemIds : [Text]) : async [Product] {
+        let filtered = Buffer.Buffer<Product>(0);
+        for (id in itemIds.vals()) {
+            switch (products.get(id)) {
+                case (null) { () };
+                case (?result) {
+                    filtered.add(result);
+                };
+            };
+        };
+        return Buffer.toArray<Product>(filtered);
     };
 
     system func preupgrade() {

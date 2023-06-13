@@ -11,7 +11,8 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
 
 const UpdateProduct = ({
@@ -45,6 +46,14 @@ const UpdateProduct = ({
   const [image3Bytes, setImage3Bytes] = useState(productInfo.images.image3);
   const [updating, setUpdating] = useState(false);
   const [uploadingImages, setUploading] = useState(false);
+
+  const host = "https://icp0.io";
+  const agent = new HttpAgent({ host: host });
+
+  const backendActor = Actor.createActor(idlFactory, {
+    agent,
+    canisterId: canisterId,
+  });
 
   const handleImageChange = async (e) => {
     setUploading(true);
@@ -96,7 +105,7 @@ const UpdateProduct = ({
         image3: image3Bytes,
       },
     };
-    await tswaanda_backend.updateProduct(id, updatedProduct);
+    await backendActor.updateProduct(id, updatedProduct);
     setProductsUpdated(true);
     setUpdating(false);
     onClose();
