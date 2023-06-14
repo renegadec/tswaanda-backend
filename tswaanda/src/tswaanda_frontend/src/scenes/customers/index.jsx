@@ -52,6 +52,8 @@ const Customers = () => {
     }
   }, [data]);
 
+  console.log(customers)
+
   const theme = useTheme();
   useEffect(() => {
     getCustomers();
