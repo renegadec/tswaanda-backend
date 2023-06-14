@@ -31,7 +31,7 @@ async function initContract() {
     nearConfig.contractName,
     {
       // View methods are read-only – they don't modify the state, but usually return some value
-      viewMethods: ["ft_balance_of", "ft_metadata"],
+      viewMethods: ["ft_balance_of", "ft_metadata", "ft_total_supply"],
       // Change methods can modify the state, but you don't receive the returned value when called
       changeMethods: ["ft_transfer", "ft_transfer_call", "storage_deposit"],
       // Sender is the account ID to initialize transactions.

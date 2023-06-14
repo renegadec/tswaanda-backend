@@ -11,7 +11,8 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
 import { v4 as uuidv4 } from "uuid";
 
@@ -30,6 +31,14 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
   const [image3, setImage3] = useState(null);
   const [uploadingImages, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const host = "https://icp0.io";
+  const agent = new HttpAgent({ host: host });
+
+  const backendActor = Actor.createActor(idlFactory, {
+    agent,
+    canisterId: canisterId,
+  });
 
   //   const [dimensions, setDimensions] = useState("");
   //   const [farmerId, setFarmerId] = useState("");
@@ -78,7 +87,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
       },
     };
 
-    await tswaanda_backend.createProduct(newProduct);
+    await backendActor.createProduct(newProduct);
     setProductsUpdated(true);
     setSaving(false)
     onClose();
