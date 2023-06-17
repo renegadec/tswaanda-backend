@@ -22,6 +22,7 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
+import Principal "mo:base/Principal";
 
 shared ({ caller = initializer }) actor class () {
 
@@ -75,8 +76,8 @@ shared ({ caller = initializer }) actor class () {
     //     return role;
     // };
 
-    public shared ({ caller }) func my_role() : async Text {
-        let role = get_role(caller);
+    public shared func my_role(userId: Principal) : async Text {
+        let role = get_role(userId);
         switch (role) {
             case (null) {
                 return "unauthorized";
@@ -91,6 +92,11 @@ shared ({ caller = initializer }) actor class () {
                 return "authorized";
             };
         };
+    };
+
+    public shared ({ caller }) func getAllAdmins() : async [(Principal, Role)] {
+        let admins = List.toArray(roles);
+        return admins;
     };
 
     // Assign a new role to a principal
