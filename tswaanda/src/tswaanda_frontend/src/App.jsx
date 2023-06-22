@@ -39,7 +39,7 @@ import Orders from "./scenes/orders/index";
 function App() {
   const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
-  const [authorized, setAuthorized] = useState(true);
+  const [authorized, setAuthorized] = useState(null);
 
   const host = "https://icp0.io";
   const agent = new HttpAgent({ host: host });
@@ -55,18 +55,18 @@ function App() {
       const identity = await authClient.getIdentity();
       const userPrincipal = identity.getPrincipal().toString();
       console.log(userPrincipal);
-      // try {
-      //   const role = await backendActor.my_role();
-      //   if (role === "unauthorized") {
-      //     setAuthorized(false);
-      //   } else {
-      //     setAuthorized(true);
-      //   }
-      //   console.log("User role: ", role);
-      // } catch (error) {
-      //   setAuthorized(false);
-      //   console.log(error);
-      // }
+      try {
+        const role = await backendActor.my_role(identity.getPrincipal());
+        if (role === "unauthorized") {
+          setAuthorized(false);
+        } else {
+          setAuthorized(true);
+        }
+        console.log("User role: ", role);
+      } catch (error) {
+        setAuthorized(false);
+        console.log(error);
+      }
     }
   };
 
