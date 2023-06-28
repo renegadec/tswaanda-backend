@@ -23,12 +23,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const PendingApprovalComponent = ({
   pendingOrders,
-  handleShowStepForm,
   handleChange,
   handleShowCustomerForm,
   handleShowStatusForm,
   updatePendingOrderStatus,
-  updatePendingOrderSteps,
   expanded,
   theme,
   selectedOrderId,
@@ -87,7 +85,7 @@ const PendingApprovalComponent = ({
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
                 {order.orderProducts.map((product) => (
-                  <Grid item xs={4} display="flex" alignItems="center">
+                  <Grid key={product.id} item xs={4} display="flex" alignItems="center">
                     <Box
                       component="img"
                       alt="profile"
@@ -162,23 +160,6 @@ const PendingApprovalComponent = ({
                   Update Order status
                 </Button>
                 <Button
-                  onClick={() => handleShowStepForm(order.orderId)}
-                  variant="outlined"
-                  size="small"
-                  style={{
-                    backgroundColor:
-                      selectedOrderId === order.orderId && showStep
-                        ? "white"
-                        : undefined,
-                    color:
-                      selectedOrderId === order.orderId && showStep
-                        ? "green"
-                        : "white",
-                  }}
-                >
-                  Update Order step
-                </Button>
-                <Button
                   onClick={() => handleShowCustomerForm(order.orderId)}
                   variant="outlined"
                   size="small"
@@ -222,41 +203,6 @@ const PendingApprovalComponent = ({
                         disabled={updating}
                         color="primary"
                         onClick={() => updatePendingOrderStatus(order.orderId)}
-                        sx={{
-                          backgroundColor: theme.palette.secondary.light,
-                          color: theme.palette.background.alt,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                        }}
-                      >
-                        {updating ? "Updating..." : "Update order"}
-                      </Button>
-                    </Container>
-                  </AccordionDetails>
-                </div>
-              )}
-              {selectedOrderId === order.orderId && showStep && (
-                <div className="">
-                  <AccordionDetails>
-                    <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                      <FormControl fullWidth margin="dense">
-                        <InputLabel id="step-label">Order Step</InputLabel>
-                        <Select
-                          labelId="step-label"
-                          onChange={(e) => setOrderStep(e.target.value)}
-                        >
-                          <MenuItem value="0">0 - Pending</MenuItem>
-                          <MenuItem value="1">1 - Approved</MenuItem>
-                          <MenuItem value="2">2 - Shipped</MenuItem>
-                          <MenuItem value="3">3 - Delivered</MenuItem>
-                        </Select>
-                      </FormControl>
-
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => updatePendingOrderSteps(order.orderId)}
                         sx={{
                           backgroundColor: theme.palette.secondary.light,
                           color: theme.palette.background.alt,

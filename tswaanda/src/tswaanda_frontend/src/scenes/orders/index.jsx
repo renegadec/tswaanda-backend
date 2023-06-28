@@ -1,9 +1,4 @@
-import {
-  Box,
-  useTheme,
-  Tabs,
-  Tab,
-} from "@mui/material";
+import { Box, useTheme, Tabs, Tab } from "@mui/material";
 import Header from "../../components/Header";
 
 import React, { useEffect, useState } from "react";
@@ -167,20 +162,6 @@ const Orders = () => {
     updateOrderStatus(id, deliveredData, deliveredOrders);
   };
 
-
-  const updatePendingOrderSteps = async (id) => {
-    updateOrderSteps(id, pendingData, pendingOrders);
-  };
-  const updateProcessingOrderSteps = async (id) => {
-    updateOrderSteps(id, approvedData, approvedOrders);
-  };
-  const updateShippedOrderSteps = async (id) => {
-    updateOrderSteps(id, shippedData, shippedOrders);
-  };
-  const updateDeliverdOrderSteps = async (id) => {
-    updateOrderSteps(id, deliveredData, deliveredOrders);
-  };
-
   const updateOrderStatus = async (id, data, orders) => {
     if (data && orderStatus != "") {
       setUpdating(true);
@@ -188,6 +169,15 @@ const Orders = () => {
 
       if (orderIndex !== -1) {
         data[orderIndex].status = orderStatus;
+        if (orderStatus === "Pending Approval") {
+          data[orderIndex].step = Number(0);
+        } else if (orderStatus === "Approved") {
+          data[orderIndex].step = Number(1);
+        } else if (orderStatus === "Shipped") {
+          data[orderIndex].step = Number(2);
+        } else if (orderStatus === "Delivered") {
+          data[orderIndex].step = Number(3);
+        }
         const res = await marketActor.updatePOrder(id, data[orderIndex]);
         toast.success("Order status have been updated", {
           autoClose: 5000,
@@ -198,44 +188,29 @@ const Orders = () => {
         orders[orderPosition].status = orderStatus;
         setUpdating(false);
         setSelectedOrderId(null);
-        if (orderStatus === "Pending Approval") {
-          getPendingOrders();
-        } else if (orderStatus === "Approved") {
-          getApprovedOrders();
-        } else if (orderStatus === "Shipped") {
-          getShippedOrders();
-        } else if (orderStatus === "Delivered") {
-          getDeliveredOrders();
+        if (value === 0) {
+          const filteredOrders = pendingOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setPendingOrders(filteredOrders);
+        } else if (value === 1) {
+          const filteredOrders = approvedOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setApprovedOrders(filteredOrders);
+        } else if (value === 2) {
+          const filteredOrders = shippedOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setShippedOrders(filteredOrders);
+        } else if (value === 3) {
+          const filteredOrders = deliveredOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setDeliverdOrders(filteredOrders);
         }
         setOrderStatus("");
-      } else {
-        toast.warning("Order not found", {
-          autoClose: 5000,
-          position: "top-center",
-          hideProgressBar: true,
-        });
-      }
-    }
-  };
-
-  const updateOrderSteps = async (id, data, orders) => {
-    if (data && orderStep != null) {
-      setUpdating(true);
-      const orderIndex = data.findIndex((order) => order.orderId === id);
-
-      if (orderIndex !== -1) {
-        data[orderIndex].step = Number(orderStep);
-        const res = await marketActor.updatePOrder(id, data[orderIndex]);
-        toast.success("Order stage have been updated", {
-          autoClose: 5000,
-          position: "top-center",
-          hideProgressBar: true,
-        });
-        const orderPosition = orders.findIndex((order) => order.orderId === id);
-        orders[orderPosition].step = orderStep;
-        setUpdating(false);
         setSelectedOrderId(null);
-        setOrderStatus("");
       } else {
         toast.warning("Order not found", {
           autoClose: 5000,
@@ -281,7 +256,6 @@ const Orders = () => {
               handleShowCustomerForm,
               handleShowStatusForm,
               updatePendingOrderStatus,
-              updatePendingOrderSteps,
               expanded,
               theme,
               selectedOrderId,
@@ -299,7 +273,6 @@ const Orders = () => {
           <ProcessingComponent
             {...{
               approvedOrders,
-              updateProcessingOrderSteps,
               handleShowStepForm,
               handleChange,
               handleShowCustomerForm,
@@ -327,7 +300,6 @@ const Orders = () => {
               handleShowCustomerForm,
               handleShowStatusForm,
               updateShippedOrderStatus,
-              updateShippedOrderSteps,
               expanded,
               theme,
               selectedOrderId,
@@ -350,7 +322,6 @@ const Orders = () => {
               handleShowCustomerForm,
               handleShowStatusForm,
               updateDeliverdOrderStatus,
-              updateDeliverdOrderSteps,
               expanded,
               theme,
               selectedOrderId,
