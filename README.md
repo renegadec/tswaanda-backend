@@ -12,7 +12,7 @@ To get started with Tswaanda Dashboard, follow these instructions:
 
 - [X] DFX(Version 0.14.1)
 - [X] NodeJS(Version 16 or higher)
-- [X] Tswaanda Backend (https://github.com/renegadec/tswaanda-backend)
+- [X] Tswaanda Marketplace (https://github.com/renegadec/marketplace)
 
 ## Download & Installation
 
