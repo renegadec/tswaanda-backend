@@ -12,8 +12,8 @@ To get started with Tswaanda Dashboard, follow these instructions:
 
 To run the frontend and backend canisters, you'll need the following software installed on your machine:
 
-- Node.js (version 12 or higher)
-- DFX (version 14)
+- NodeJS (version 16 or higher)
+- DFX (version 0.14.1)
 
 ### Installing
 
@@ -36,9 +36,9 @@ npm install
 1. Start local dfx
 
 ```bash
-dfx start --clean
+dfx start --clean --background
 ```
-2. Split your terminal and deploy the canisters and generate candid interface
+2. Deploy the canisters and generate candid interface
 
 ```
 dfx deploy
@@ -48,11 +48,19 @@ dfx deploy
 ```
 npm start
 ```
-You are all set, the react frontend should be running at `http://localhost:8080/` if you don't have other programs running on the same port
+## Contributing
 
-  
-  ## Contributing
-  
-  If you'd like to contribute to Tswaanda Dashboard, please fork the repository and submit a pull request. We'd love to see your contributions!
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## Conclusion
+
+If you have any challenges you can create or ask questions in the Issues tab. We are constantly updating the software and always check for updates if anything breaks at any point.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
 
 
