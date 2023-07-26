@@ -19,23 +19,12 @@ module {
         id: Text;
         name : Text;
         price : Int32;
-        image : Blob;
         minOrder : Int32;
         shortDescription : Text;
         fullDescription : Text;
         category : Text;
-        images : Images;
-        additionalInformation : AdditionalInformation;
-    };
-    public type AdditionalInformation = {
-        price : Int32;
+        images : [Text];
         weight : Int32;
         availability : Text;
-    };
-
-    public type Images = {
-        image1 : Blob;
-        image2 : Blob;
-        image3 : Blob;
     };
 }

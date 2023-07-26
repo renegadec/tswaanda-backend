@@ -2,7 +2,7 @@
  * Module     : main.mo
  * Copyright  : Confidence Nyirenda
  * License    : MIT
- * Maintainer : Isheanesu Misi <isheanesu@tswaanda.com>
+ * Maintainer : Enoch Chirima <enoch@tswaanda.com>
  * Stability  : Stable
  */
 
@@ -69,12 +69,6 @@ shared ({ caller = initializer }) actor class () {
             throw Error.reject("unauthorized");
         };
     };
-
-    // Return the role of the result caller/user identity
-    // public shared({ caller }) func my_role() : async ?Role {
-    //     let role =  get_role(caller);
-    //     return role;
-    // };
 
     public shared func my_role(userId: Principal) : async Text {
         let role = get_role(userId);

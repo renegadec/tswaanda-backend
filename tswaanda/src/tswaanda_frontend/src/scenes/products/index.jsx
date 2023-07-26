@@ -16,37 +16,49 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Header from "../../components/Header";
 
 import UpLoadProduct from "../../scenes/upload";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import UpdateProduct from "../update/index";
+import { backendActor } from "../../config";
+import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { deleteAsset } from "../../storage-config/functions";
 
 const Product = ({
   id,
   name,
-  image,
-  description,
+  shortDescription,
   price,
-  addInfo,
   images,
   minOrder,
-  fullDesc,
+  fullDescription,
   rating,
   category,
   supply,
   stat,
+  weight,
+  availability,
 
-  updateProducts,
+  setProductsUpdated,
 }) => {
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
+  const [open, setOpen] = useState(false);
 
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
+  const [deletingAssets, setDeleting] = useState(false)
+  const [imgCount, setImgCount] = useState(null)
+  const [deletingProduct, setDelProduct] = useState(false)
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleUpdateButton = () => {
     setIsOpen(true);
@@ -57,21 +69,40 @@ const Product = ({
   };
 
   const productInfo = {
-    id: id,
-    name: name,
-    image: image,
-    price: price,
-    minOrder: minOrder,
-    shortDescription: description,
-    fullDescription: fullDesc,
-    category: category,
-    additionalInformation: addInfo,
-    images: images
+    id,
+    name,
+    price,
+    minOrder,
+    shortDescription,
+    fullDescription,
+    category,
+    images,
+    weight,
+    availability
   };
 
   const handleDelete = async () => {
-    await backendActor.deleteProduct(id);
-    updateProducts(true);
+    try {
+      await deleteAssetsUrls(images)
+      setDelProduct(true)
+      await tswaanda_backend.deleteProduct(id);
+      setDelProduct(false)
+      setProductsUpdated(true);
+      handleClose()
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const deleteAssetsUrls = async (urls) => {
+    setDeleting(true)
+    setImgCount(urls.length)
+    for (const url of urls) {
+      console.log("Deleting this url", url)
+      await deleteAsset(url);
+      setImgCount(prevCount => prevCount - 1);
+    }
+    setDeleting(false)
   };
 
   return (
@@ -97,8 +128,7 @@ const Product = ({
           ${Number(price).toFixed(2)}
         </Typography>
         <Rating value={rating} readOnly />
-
-        <Typography variant="body2">{description}</Typography>
+        <Typography variant="body2">{shortDescription}</Typography>
       </CardContent>
       <CardActions>
         <Button
@@ -112,21 +142,44 @@ const Product = ({
           variant="primary"
           size="small"
           onClick={handleUpdateButton}
-          // onClick={() => setIsExpanded(!isExpanded)}
+        // onClick={() => setIsExpanded(!isExpanded)}
         >
           Update
         </Button>
         {isOpen && (
           <UpdateProduct
             productInfo={productInfo}
-            setProductsUpdated={updateProducts}
+            setProductsUpdated={setProductsUpdated}
             isOpen={isOpen}
             onClose={handleUpdatePopClose}
           />
         )}
-        <Button variant="primary" size="small" onClick={handleDelete}>
+        <Button variant="primary" size="small" onClick={handleClickOpen}>
           <DeleteIcon />
         </Button>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Are you sure want to delete this product"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Name: {name}, Price: {price}, {availability}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            {!deletingAssets && !deletingProduct && <Button onClick={handleClose}>Cancel</Button>}
+            <Button onClick={handleDelete} autoFocus>
+              {deletingAssets && `Deleting images... ${imgCount}`}
+              {deletingProduct && `Deleting Product...`}
+              {!deletingAssets && !deletingProduct && "Yes I'm sure"}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </CardActions>
       <Collapse
         in={isExpanded}
@@ -152,22 +205,13 @@ const Product = ({
 const Products = () => {
   const theme = useTheme();
 
-  // Fetching products from motoko backend
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
-
   const [products, setProducts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [productsUpdated, setProductsUpdated] = useState(false);
 
   const getProducts = async () => {
     setLoading(true);
-    const products = await backendActor.getAllProducts();
+    const products = await tswaanda_backend.getAllProducts();
     setProducts(products);
     setLoading(false);
     setProductsUpdated(false);
@@ -238,34 +282,18 @@ const Products = () => {
             ({
               id,
               name,
-              image,
               minOrder,
               shortDescription,
               fullDescription,
               price,
-              rating,
               category,
-              additionalInformation,
               images,
-              supply,
-              stat,
+              availability,
+              weight
             }) => (
               <Product
                 key={id}
-                id={id}
-                name={name}
-                image={image}
-                minOrder={minOrder}
-                description={shortDescription}
-                fullDesc={fullDescription}
-                addInfo={additionalInformation}
-                images={images}
-                price={price}
-                rating="4"
-                category={category}
-                supply="supply"
-                stat="stats"
-                updateProducts={setProductsUpdated}
+                {...{ id, name, minOrder, shortDescription, fullDescription, images, price, rating: Number(4), category, stat: "stats", setProductsUpdated, availability, weight }}
               />
             )
           )}

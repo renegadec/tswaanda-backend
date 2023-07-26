@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
-import { useSelector } from "react-redux";
 import { themeSettings } from "./theme";
 import {
   BrowserRouter,
@@ -28,26 +27,20 @@ import { AuthClient } from "@dfinity/auth-client";
 
 import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
-import {
-  canisterId,
-  idlFactory,
-} from "../../declarations/tswaanda_backend/index";
 import Wallet from "./scenes/wallet/index";
-import { Actor, HttpAgent } from "@dfinity/agent";
 import Orders from "./scenes/orders/index";
+import { backendActor } from "./config";
+import { initActors } from "./storage-config/functions";
+import { useSelector, useDispatch } from 'react-redux'
+import { setInit } from "./state/globalSlice";
+import { tswaanda_backend } from "../../declarations/tswaanda_backend/index";
 
 function App() {
+  const dispatch = useDispatch()
+
   const [session, setSession] = useState(null);
   const { login, isLoggedIn } = useAuth(session, setSession);
   const [authorized, setAuthorized] = useState(null);
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
 
   const getRole = async () => {
     const authClient = await AuthClient.create();
@@ -56,7 +49,7 @@ function App() {
       const userPrincipal = identity.getPrincipal().toString();
       console.log(userPrincipal);
       try {
-        const role = await backendActor.my_role(identity.getPrincipal());
+        const role = await tswaanda_backend.my_role(identity.getPrincipal());
         if (role === "unauthorized") {
           setAuthorized(false);
         } else {
@@ -86,6 +79,17 @@ function App() {
       getRole();
     }
   }, [session]);
+
+  const init = async () => {
+    const res = await initActors();
+    if (res) {
+      dispatch(setInit());
+    }
+  };
+
+  useEffect(() => {
+    init();
+  }, [])
 
   const ProtectedRoutes = () => {
     if (session && authorized) {

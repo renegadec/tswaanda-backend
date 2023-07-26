@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { initContract } from "../../near-config/index";
 import Big from "big.js";
 import { toast } from "react-toastify";
 import {
@@ -90,16 +89,16 @@ const Wallet = () => {
     }
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      const contractData = await initContract();
-      setUser(contractData.currentUser);
-      setConfig(contractData.nearConfig);
-      setWallet(contractData.walletConnection);
-      setContract(contractData.contract);
-    }
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const contractData = await initContract();
+  //     setUser(contractData.currentUser);
+  //     setConfig(contractData.nearConfig);
+  //     setWallet(contractData.walletConnection);
+  //     setContract(contractData.contract);
+  //   }
+  //   fetchData();
+  // }, []);
 
   const loadContractInfo = async () => {
     let bal = await contract.ft_balance_of({ account_id: user.accountId });
@@ -129,7 +128,7 @@ const Wallet = () => {
           <Header title="Tswaanda Token" subtitle="Managing tswaanda token" />
           <Button
             variant="contained"
-            onClick={handleContract}
+            // onClick={handleContract}
             sx={{
               backgroundColor: theme.palette.secondary.light,
               color: theme.palette.background.alt,

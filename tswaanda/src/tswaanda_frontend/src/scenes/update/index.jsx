@@ -11,9 +11,10 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
+import { deleteAsset, uploadFile } from "../../storage-config/functions";
+import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
+import { useSelector, useDispatch } from 'react-redux'
 
 const UpdateProduct = ({
   productInfo,
@@ -21,6 +22,9 @@ const UpdateProduct = ({
   isOpen,
   onClose,
 }) => {
+
+  const { storageInitiated } = useSelector((state) => state.global)
+
   const [id, setId] = useState(productInfo.id);
   const [minOrder, setMinOrder] = useState(productInfo.minOrder);
   const [productName, setProductName] = useState(productInfo.name);
@@ -31,84 +35,102 @@ const UpdateProduct = ({
   const [price, setPrice] = useState(productInfo.price);
   const [category, setCategory] = useState(productInfo.category);
   const [weight, setWeight] = useState(
-    productInfo.additionalInformation.weight
+    productInfo.weight
   );
   const [availability, setAvailability] = useState(
-    productInfo.additionalInformation.availability
+    productInfo.availability
   );
-  const [mainImage, setMainImage] = useState(null);
-  const [image1, setImage1] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [image3, setImage3] = useState(null);
-  const [mainImageBytes, setBytesImage] = useState(productInfo.image);
-  const [image1Bytes, setImage1Bytes] = useState(productInfo.images.image1);
-  const [image2Bytes, setImage2Bytes] = useState(productInfo.images.image2);
-  const [image3Bytes, setImage3Bytes] = useState(productInfo.images.image3);
+  const [newImages, setNewImages] = useState(null);
+  const [deletingAssets, setDeleting] = useState(false)
+
+
+  const [images, setImages] = useState(productInfo.images);
   const [updating, setUpdating] = useState(false);
-  const [uploadingImages, setUploading] = useState(false);
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
+  const [loadingImages, setloading] = useState(false);
+  const [imgCount, setImgCount] = useState(null)
+  const [uploading, setUpLoading] = useState(false);
 
   const handleImageChange = async (e) => {
-    setUploading(true);
-    setMainImage(e.target.files[0]);
-    setImage1(e.target.files[1]);
-    setImage2(e.target.files[2]);
-    setImage3(e.target.files[3]);
+    setloading(true);
+    const files = Array.from(e.target.files);
+    const selected = files.slice(0, 4);
+    setNewImages(selected);
+    setloading(false)
   };
-
-  const convertToBytes = async (image) => {
-    const imageBytes = [...new Uint8Array(await image.arrayBuffer())];
-    return imageBytes;
-  };
-
-  useEffect(() => {
-    if (mainImage && image1 && image2 && image3) {
-      const update = async () => {
-        setBytesImage(await convertToBytes(mainImage));
-        setImage1Bytes(await convertToBytes(image1));
-        setImage2Bytes(await convertToBytes(image2));
-        setImage3Bytes(await convertToBytes(image3));
-        setUploading(false);
-      };
-      update();
-    }
-  }, [mainImage, image1, image2, image3]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    setUpdating(true);
+    if (deletingAssets || uploading || updating) {
+      console.log("Currently busy")
+    } else {
+      if (newImages) {
+        try {
+          console.log("Deleting old images")
+          await deleteAssetsUrls(images)
+          const urls = await uploadAssets()
+          setUpdating(true);
+          saveUpdatedProduct(urls)
+        } catch (error) {
+          console.log(error)
+        }
+      } else {
+        setUpdating(true);
+        saveUpdatedProduct(images)
+      }
+    }
+  };
 
+  const saveUpdatedProduct = async (filesUrls) => {
     const updatedProduct = {
       id: id,
       name: productName,
-      image: mainImageBytes,
       price: parseInt(price),
       minOrder: parseInt(minOrder),
       shortDescription: shortDescription,
       fullDescription: fullDesc,
       category: category,
-      additionalInformation: {
-        price: parseInt(price),
-        weight: parseInt(weight),
-        availability: availability,
-      },
-      images: {
-        image1: image1Bytes,
-        image2: image2Bytes,
-        image3: image3Bytes,
-      },
+      weight: parseInt(weight),
+      availability: availability,
+      images: filesUrls
     };
-    await backendActor.updateProduct(id, updatedProduct);
+    await tswaanda_backend.updateProduct(id, updatedProduct);
     setProductsUpdated(true);
     setUpdating(false);
     onClose();
+  }
+
+  const uploadAssets = async () => {
+    if (storageInitiated && newImages) {
+      setImgCount(newImages.length)
+      setUpLoading(true);
+      const file_path = location.pathname;
+      const assetsUrls = [];
+
+      for (const image of newImages) {
+        try {
+          const assetUrl = await uploadFile(image, file_path);
+          assetsUrls.push(assetUrl);
+          console.log("This file was successfully uploaded:", image.name);
+          setImgCount(prevCount => prevCount - 1);
+        } catch (error) {
+          console.error("Error uploading file:", image.name, error);
+        }
+      }
+      setUpLoading(false);
+      console.log("Assets urls here", assetsUrls);
+      return assetsUrls;
+    }
+  };
+
+  const deleteAssetsUrls = async (urls) => {
+    setDeleting(true)
+    setImgCount(urls.length)
+    for (const url of urls) {
+      console.log("Deleting this url", url)
+      await deleteAsset(url);
+      setImgCount(prevCount => prevCount - 1);
+    }
+    setDeleting(false)
   };
 
   return (
@@ -206,38 +228,19 @@ const UpdateProduct = ({
             margin="dense"
             label="Image files"
             type="file"
-            // inputProps={{
-            //   accept: "image/*",
-            // }}
             inputProps={{
               multiple: true,
             }}
             fullWidth
             onChange={handleImageChange}
           />
-          {/* <TextField
-        margin="dense"
-        label="Dimensions"
-        type="text"
-        fullWidth
-        value={dimensions}
-        onChange={handleDimensions}
-      /> */}
-          {/* <TextField
-        margin="dense"
-        label="Farmer ID"
-        type="text"
-        fullWidth
-        value={farmerId}
-        onChange={handleFarmerIdChange}
-      /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} variant="outlined" color="error">
             Cancel
           </Button>
           <Button
-            disabled={updating || uploadingImages}
+            disabled={loadingImages}
             type="submit"
             variant="contained"
             color="success"
@@ -247,7 +250,10 @@ const UpdateProduct = ({
               padding: "10px 20px",
             }}
           >
-            Update product
+            {deletingAssets && `Deleting old images... ${imgCount}`}
+            {uploading && `Uploading new images...${imgCount}`}
+            {updating && "Saving updated product..."}
+            {!uploading && !deletingAssets && !updating && "Update product"}
           </Button>
         </DialogActions>
       </form>
