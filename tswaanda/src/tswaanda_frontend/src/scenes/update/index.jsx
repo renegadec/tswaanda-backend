@@ -13,8 +13,8 @@ import {
 } from "@mui/material";
 import { categories } from "../constants/index";
 import { deleteAsset, uploadFile } from "../../storage-config/functions";
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import { useSelector, useDispatch } from 'react-redux'
+import { backendActor } from "../../config";
 
 const UpdateProduct = ({
   productInfo,
@@ -93,7 +93,7 @@ const UpdateProduct = ({
       availability: availability,
       images: filesUrls
     };
-    await tswaanda_backend.updateProduct(id, updatedProduct);
+    await backendActor.updateProduct(id, updatedProduct);
     setProductsUpdated(true);
     setUpdating(false);
     onClose();

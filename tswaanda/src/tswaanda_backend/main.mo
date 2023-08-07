@@ -36,8 +36,8 @@ shared ({ caller = initializer }) actor class () {
     private stable var role_requests : AssocList.AssocList<Principal, Role> = List.nil();
 
     //Products variables
-    private stable var productsEntries : [(Text, Product)] = [];
     var products = HashMap.HashMap<Text, Product>(0, Text.equal, Text.hash);
+    private stable var productsEntries : [(Text, Product)] = [];
 
     //Access Control implimantaion
 

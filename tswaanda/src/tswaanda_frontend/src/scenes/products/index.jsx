@@ -18,7 +18,6 @@ import Header from "../../components/Header";
 import UpLoadProduct from "../../scenes/upload";
 import UpdateProduct from "../update/index";
 import { backendActor } from "../../config";
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -85,7 +84,7 @@ const Product = ({
     try {
       await deleteAssetsUrls(images)
       setDelProduct(true)
-      await tswaanda_backend.deleteProduct(id);
+      await backendActor.deleteProduct(id);
       setDelProduct(false)
       setProductsUpdated(true);
       handleClose()
@@ -211,7 +210,7 @@ const Products = () => {
 
   const getProducts = async () => {
     setLoading(true);
-    const products = await tswaanda_backend.getAllProducts();
+    const products = await backendActor.getAllProducts();
     setProducts(products);
     setLoading(false);
     setProductsUpdated(false);

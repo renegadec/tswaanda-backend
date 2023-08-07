@@ -15,7 +15,6 @@ import { categories } from "../constants/index";
 import { v4 as uuidv4 } from "uuid";
 import { backendActor } from "../../config";
 import { useSelector, useDispatch } from 'react-redux'
-import { tswaanda_backend } from "../../../../declarations/tswaanda_backend/index";
 import { uploadFile } from "../../storage-config/functions";
 
 function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
@@ -74,7 +73,7 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             images: urls,
           };
 
-          await tswaanda_backend.createProduct(newProduct);
+          await backendActor.createProduct(newProduct);
           setProductsUpdated(true);
           setSaving(false)
           onClose();

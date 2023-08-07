@@ -29,11 +29,11 @@ import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
 import Wallet from "./scenes/wallet/index";
 import Orders from "./scenes/orders/index";
-import { backendActor } from "./config";
 import { initActors } from "./storage-config/functions";
 import { useSelector, useDispatch } from 'react-redux'
 import { setInit } from "./state/globalSlice";
-import { tswaanda_backend } from "../../declarations/tswaanda_backend/index";
+import { backendActor } from "./config";
+import Farmers from "./scenes/farmers/index";
 
 function App() {
   const dispatch = useDispatch()
@@ -49,7 +49,7 @@ function App() {
       const userPrincipal = identity.getPrincipal().toString();
       console.log(userPrincipal);
       try {
-        const role = await tswaanda_backend.my_role(identity.getPrincipal());
+        const role = await backendActor.my_role(identity.getPrincipal());
         if (role === "unauthorized") {
           setAuthorized(false);
         } else {
@@ -125,6 +125,7 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/customers" element={<Customers />} />
+                  <Route path="/farmers" element={<Farmers />} />
                   <Route path="/transactions" element={<Transactions />} />
                   <Route path="/wallet" element={<Wallet />} />
                   <Route path="/orders" element={<Orders />} />

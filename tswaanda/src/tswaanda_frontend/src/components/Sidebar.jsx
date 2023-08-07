@@ -29,12 +29,12 @@ import {
   PieChartOutlined,
   PaidOutlined,
 } from "@mui/icons-material";
+import AgricultureIcon from '@mui/icons-material/Agriculture';
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import Badge from "@mui/material/Badge";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-import { idlFactory } from "../../../declarations/marketplace_backend";
-import { Actor, HttpAgent } from "@dfinity/agent";
+import { marketActor } from "../config";
 
 const Sidebar = ({
   user,
@@ -45,15 +45,6 @@ const Sidebar = ({
 }) => {
   const [newOrders, setNewOrders] = useState(null);
   const [newKYC, setNewKYC] = useState(null);
-  const canisterId = "55ger-liaaa-aaaal-qb33q-cai";
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const marketActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
 
   const navItems = [
     {
@@ -73,6 +64,16 @@ const Sidebar = ({
       icon: (
         <Badge badgeContent={newKYC} color="secondary">
           <Groups2Outlined />
+        </Badge>
+      ),
+    },
+    {
+      text: "Farmers",
+      icon: (
+        <Badge
+          // badgeContent={newKYC} 
+          color="secondary">
+          <AgricultureIcon />
         </Badge>
       ),
     },
@@ -237,7 +238,7 @@ const Sidebar = ({
               })}
             </List>
           </Box>
-          
+
         </Drawer>
       )}
     </Box>

@@ -1,14 +1,12 @@
 import { Box, useTheme, Tabs, Tab } from "@mui/material";
 import Header from "../../components/Header";
-
 import React, { useEffect, useState } from "react";
-import { idlFactory } from "../../../../declarations/marketplace_backend";
-import { Actor, HttpAgent } from "@dfinity/agent";
 import { toast } from "react-toastify";
 import PendingApprovalComponent from "../../components/Orders/PendingApprovalComponent";
 import ProcessingComponent from "../../components/Orders/ProcessingComponent";
 import ShippedComponent from "../../components/Orders/ShippedComponent";
 import DeliveredComponent from "../../components/Orders/DeliveredComponent";
+import { marketActor } from "../../config";
 
 const Orders = () => {
   const theme = useTheme();
@@ -30,16 +28,6 @@ const Orders = () => {
   const [orderStatus, setOrderStatus] = useState("");
   const [orderStep, setOrderStep] = useState(null);
   const [updating, setUpdating] = useState(false);
-
-  const canisterId = "55ger-liaaa-aaaal-qb33q-cai";
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const marketActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
 
   //Setting of the value of the currect tab
   const [value, setValue] = useState(0);

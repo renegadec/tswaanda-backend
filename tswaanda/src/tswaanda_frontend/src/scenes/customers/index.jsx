@@ -17,34 +17,23 @@ import {
 } from "@mui/material";
 import Header from "../../components/Header";
 import { DataGrid } from "@mui/x-data-grid";
-import { idlFactory } from "../../../../declarations/marketplace_backend";
-import { Actor, HttpAgent } from "@dfinity/agent";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { toast } from "react-toastify";
 import { saveAs } from "file-saver";
+import { marketActor } from "../../config";
 
 const Customers = () => {
   const [expanded, setExpanded] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState(null);
-  const canisterId = "55ger-liaaa-aaaal-qb33q-cai";
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [customerStatus, setCustomerStatus] = useState("");
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const marketActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -53,35 +42,9 @@ const Customers = () => {
   const getCustomers = async () => {
     setIsLoading(true);
     const res = await marketActor.getAllKYC();
-    setData(res);
+    setCustomers(res);
+    setIsLoading(false);
   };
-
-  useEffect(() => {
-    if (data) {
-      const convertImage = (image) => {
-        const imageContent = new Uint8Array(image);
-        const blob = new Blob([imageContent.buffer], { type: "image/png" });
-        return URL.createObjectURL(blob);
-      };
-
-      const formatOrderDate = (timestamp) => {
-        const date = new Date(Number(timestamp));
-        return date.toLocaleDateString();
-      };
-
-      const modfifiedCustomers = data.map((customer) => ({
-        ...customer,
-        userId: customer.userId.toString(),
-        profilePhoto: convertImage(customer.profilePhoto),
-        coverPhoto: convertImage(customer.coverPhoto),
-        zipCode: Number(customer.zipCode),
-        phoneNumber: Number(customer.phoneNumber),
-        dateCreated: formatOrderDate(customer.dateCreated),
-      }));
-      setCustomers(modfifiedCustomers);
-      setIsLoading(false);
-    }
-  }, [data]);
 
   const theme = useTheme();
   useEffect(() => {
@@ -94,16 +57,16 @@ const Customers = () => {
   };
 
   const updateCustomerStatus = async (id) => {
-    if (data && customerStatus != "") {
+    if (customers && customerStatus != "") {
       setUpdating(true);
-      const customerIndex = data.findIndex((customer) => customer.id === id);
+      const customerIndex = customers.findIndex((customer) => customer.id === id);
 
       if (customerIndex !== -1) {
-        data[customerIndex].status = customerStatus;
-        let userId = data[customerIndex].userId;
+        customers[customerIndex].status = customerStatus;
+        let userId = customers[customerIndex].userId;
         const res = await marketActor.updateKYCRequest(
           userId,
-          data[customerIndex]
+          customers[customerIndex]
         );
         toast.success(
           `Customer status have been updated to ${customerStatus} `,
@@ -126,36 +89,6 @@ const Customers = () => {
           hideProgressBar: true,
         });
       }
-    }
-  };
-
-  const handleDownloadKYC = (id) => {
-    const convertImage = (image) => {
-      const fileName = "tswaanda_image.jpeg";
-
-      const blob = new Blob([image.buffer], { type: "image/jpeg" });
-      const url = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-
-      return url;
-    };
-
-    const customer = data.find((customer) => customer.id === id);
-
-    if (customer) {
-      const downloadUrl = convertImage(customer.coverPhoto) ;
-      // saveAs(downloadUrl, "userkyc.png");
-      console.log("Image downloaded:", downloadUrl);
-    } else {
-      console.log("Item not found");
     }
   };
 
@@ -301,16 +234,18 @@ const Customers = () => {
                     >
                       Update Customer status
                     </Button>
-                    <Button
-                      onClick={() => handleDownloadKYC(customer.id)}
-                      variant="outlined"
-                      size="small"
-                      style={{
-                        backgroundColor: "white",
-                      }}
+                    <a href={customer.profilePhoto}
                     >
-                      Download KYC docs
-                    </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        style={{
+                          backgroundColor: "white",
+                        }}
+                      >
+                        Download KYC docs
+                      </Button>
+                    </a>
                   </CardActions>
                 </Container>
 
