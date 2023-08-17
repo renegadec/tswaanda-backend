@@ -90,12 +90,6 @@ const Orders = () => {
       return [];
     }
 
-    const convertImage = (image) => {
-      const imageContent = new Uint8Array(image);
-      const blob = new Blob([imageContent.buffer], { type: "image/png" });
-      return URL.createObjectURL(blob);
-    };
-
     const formatOrderDate = (timestamp) => {
       const date = new Date(Number(timestamp));
       const options = {
@@ -117,11 +111,8 @@ const Orders = () => {
       return date.toLocaleTimeString("en-US", options);
     };
 
-    const ordersWithConvertedImages = data.map((order) => {
-      const orderProducts = order.orderProducts.map((product) => ({
-        ...product,
-        image: convertImage(product.image),
-      }));
+    const modifiedOrder = data.map((order) => {
+
 
       const formattedDate = formatOrderDate(order.dateCreated);
       const formattedTime = formatOrderTime(order.dateCreated);
@@ -130,11 +121,10 @@ const Orders = () => {
         ...order,
         step: Number(order.step),
         dateCreated: `${formattedDate} at ${formattedTime}`,
-        orderProducts: orderProducts,
       };
     });
 
-    return ordersWithConvertedImages;
+    return modifiedOrder;
   }
 
   const updatePendingOrderStatus = async (id) => {

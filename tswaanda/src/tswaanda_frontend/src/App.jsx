@@ -34,20 +34,23 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setInit } from "./state/globalSlice";
 import { backendActor } from "./config";
 import Farmers from "./scenes/farmers/index";
+import Storage from "./scenes/storage/index";
+import { initializeRepositoryCanister } from "./hanse/interface";
+import icblast from "@infu/icblast";
 
 function App() {
   const dispatch = useDispatch()
+  const { storageInitiated } = useSelector((state) => state.global)
 
   const [session, setSession] = useState(null);
-  const { login, isLoggedIn } = useAuth(session, setSession);
+  const { login, isLoggedIn, identity } = useAuth(session, setSession);
   const [authorized, setAuthorized] = useState(null);
 
   const getRole = async () => {
     const authClient = await AuthClient.create();
     if (await authClient.isAuthenticated()) {
-      const identity = await authClient.getIdentity();
-      const userPrincipal = identity.getPrincipal().toString();
-      console.log(userPrincipal);
+      const identity = await authClient.getIdentity()
+      console.log("Your principal id", identity.getPrincipal().toString())
       try {
         const role = await backendActor.my_role(identity.getPrincipal());
         if (role === "unauthorized") {
@@ -77,6 +80,7 @@ function App() {
   useEffect(() => {
     if (session) {
       getRole();
+      // initializeRepositoryCanister()
     }
   }, [session]);
 
@@ -90,7 +94,6 @@ function App() {
   useEffect(() => {
     init();
   }, [])
-
   const ProtectedRoutes = () => {
     if (session && authorized) {
       return <Outlet />;
@@ -110,7 +113,7 @@ function App() {
 
   return (
     <div className="app">
-      <UserContext.Provider value={{ session, setSession }}>
+      <UserContext.Provider value={{ session, setSession, identity }}>
         <BrowserRouter>
           <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -136,6 +139,7 @@ function App() {
                   <Route path="/breakdown" element={<Breakdown />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/performance" element={<Performance />} />
+                  <Route path="/storage" element={<Storage />} />
                 </Route>
               </Route>
             </Routes>

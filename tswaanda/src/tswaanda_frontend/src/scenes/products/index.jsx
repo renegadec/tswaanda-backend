@@ -104,6 +104,20 @@ const Product = ({
     setDeleting(false)
   };
 
+  const formatOrderDate = (timestamp) => {
+    const milliseconds = Number(timestamp) / 1000000;
+    const date = new Date(milliseconds);
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true
+    };
+    return date.toLocaleDateString(undefined, options);
+  };
+
   return (
     <Card
       sx={{
@@ -128,6 +142,12 @@ const Product = ({
         </Typography>
         <Rating value={rating} readOnly />
         <Typography variant="body2">{shortDescription}</Typography>
+        {/* <Typography sx={{ color: "text.secondary" }}>
+          <span> <span style={{ fontWeight: "bold" }}>Date</span>:
+            {formatOrderDate(dateCreated)}</span>
+
+
+        </Typography> */}
       </CardContent>
       <CardActions>
         <Button
@@ -163,7 +183,7 @@ const Product = ({
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Are you sure want to delete this product"}
+            {"Are you sure want to delete this product?"}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

@@ -31,6 +31,7 @@ const Customers = () => {
   const [updating, setUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState(null);
+  const [data, setData] = useState(null);
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [customerStatus, setCustomerStatus] = useState("");
@@ -42,9 +43,28 @@ const Customers = () => {
   const getCustomers = async () => {
     setIsLoading(true);
     const res = await marketActor.getAllKYC();
-    setCustomers(res);
-    setIsLoading(false);
+    setData(res);
   };
+
+  useEffect(() => {
+    if (data) {
+
+      const formatOrderDate = (timestamp) => {
+        const date = new Date(Number(timestamp));
+        return date.toLocaleDateString();
+      };
+
+      const modfifiedCustomers = data.map((customer) => ({
+        ...customer,
+        userId: customer.userId.toString(),
+        zipCode: Number(customer.zipCode),
+        phoneNumber: Number(customer.phoneNumber),
+        dateCreated: formatOrderDate(customer.dateCreated),
+      }));
+      setCustomers(modfifiedCustomers);
+      setIsLoading(false);
+    }
+  }, [data]);
 
   const theme = useTheme();
   useEffect(() => {
@@ -57,16 +77,16 @@ const Customers = () => {
   };
 
   const updateCustomerStatus = async (id) => {
-    if (customers && customerStatus != "") {
+    if (data && customerStatus != "") {
       setUpdating(true);
-      const customerIndex = customers.findIndex((customer) => customer.id === id);
+      const customerIndex = data.findIndex((customer) => customer.id === id);
 
       if (customerIndex !== -1) {
-        customers[customerIndex].status = customerStatus;
-        let userId = customers[customerIndex].userId;
+        data[customerIndex].status = customerStatus;
+        let userId = data[customerIndex].userId;
         const res = await marketActor.updateKYCRequest(
           userId,
-          customers[customerIndex]
+          data[customerIndex]
         );
         toast.success(
           `Customer status have been updated to ${customerStatus} `,

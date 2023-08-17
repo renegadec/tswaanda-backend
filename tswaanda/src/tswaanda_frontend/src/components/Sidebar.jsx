@@ -35,6 +35,7 @@ import Badge from "@mui/material/Badge";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import { marketActor } from "../config";
+import StorageIcon from '@mui/icons-material/Storage';
 
 const Sidebar = ({
   user,
@@ -67,16 +68,16 @@ const Sidebar = ({
         </Badge>
       ),
     },
-    {
-      text: "Farmers",
-      icon: (
-        <Badge
-          // badgeContent={newKYC} 
-          color="secondary">
-          <AgricultureIcon />
-        </Badge>
-      ),
-    },
+    // {
+    //   text: "Farmers",
+    //   icon: (
+    //     <Badge
+    //       // badgeContent={newKYC} 
+    //       color="secondary">
+    //       <AgricultureIcon />
+    //     </Badge>
+    //   ),
+    // },
     {
       text: "Transactions",
       icon: <ReceiptLongOutlined />,
@@ -128,6 +129,10 @@ const Sidebar = ({
     {
       text: "Performance",
       icon: <TrendingUpOutlined />,
+    },
+    {
+      text: "Storage",
+      icon: <StorageIcon />,
     },
   ];
 
