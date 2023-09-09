@@ -45,7 +45,7 @@ shared ({ caller = initializer }) actor class () {
     private stable var productsEntries : [(Text, Product)] = [];
     private stable var farmersEntries : [(Text, Farmer)] = [];
 
-    //Access Control implimantaion
+    //-----------------------------------------Access control implimentation---------------------------------------------
 
     // Determine if a principal has a role with permissions
     func has_permission(pal : Principal, perm : Permission) : Bool {
@@ -173,7 +173,7 @@ shared ({ caller = initializer }) actor class () {
         return Buffer.toArray<Product>(filtered);
     };
 
-    //-----------------------------------------Farmers implimentation------------------------------------------------
+    //----------------------------------------------Farmers implimentation------------------------------------------------
 
     public shared func createFarmer(newFarmer : Farmer) : () {
         farmers.put(newFarmer.email, newFarmer);
@@ -210,7 +210,7 @@ shared ({ caller = initializer }) actor class () {
         farmers.delete(email);
     };
 
-    //-----------------------------------------Upgrade methods------------------------------------------------
+    //----------------------------------------------Upgrade methods--------------------------------------------------------
 
     system func preupgrade() {
         productsEntries := Iter.toArray(products.entries());

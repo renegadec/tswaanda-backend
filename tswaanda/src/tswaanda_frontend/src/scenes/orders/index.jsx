@@ -57,7 +57,6 @@ const Orders = () => {
     setPendingOrders(convertedOrders);
   };
   const getApprovedOrders = async () => {
-    console.log("Getting approved orders fucntion running");
     const res = await marketActor.getApprovedOrders();
     const sortedData = res.sort(
       (a, b) => Number(b.dateCreated) - Number(a.dateCreated)

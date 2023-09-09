@@ -3,7 +3,12 @@ import {
   canisterId,
   idlFactory,
 } from "../../declarations/tswaanda_backend/index";
+import icblast from "@infu/icblast";
 import { idlFactory as marketIdlFactory } from "../../declarations/marketplace_backend";
+
+let ic = icblast({ local: false });
+
+export const canister = await ic("55ger-liaaa-aaaal-qb33q-cai");
 
 const host = "https://icp0.io";
 const agent = new HttpAgent({ host: host });
