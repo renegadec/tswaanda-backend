@@ -36,6 +36,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import { marketActor } from "../config";
 import StorageIcon from '@mui/icons-material/Storage';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 
 const Sidebar = ({
   user,
@@ -97,6 +98,10 @@ const Sidebar = ({
     {
       text: "Geography",
       icon: <PublicOutlined />,
+    },
+    {
+      text: "Documents",
+      icon: <ContentPasteIcon />,
     },
     {
       text: "Sales",

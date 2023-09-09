@@ -26,6 +26,20 @@ module {
         images : [Text];
         weight : Int32;
         availability : Text;
+        // created: ?Int;
+    };
+
+    public type Farmer = {
+        id: Text;
+        name : Text;
+        email : Text;
+        phone : Text;
+        company : Text;
+        location : Text;
+        description : Text;
+        listedProducts : ?[Product];
+        soldProducts : ?[Product];
+        produceCategories : Text;
         created: ?Int;
     };
 }

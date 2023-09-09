@@ -24,7 +24,6 @@ import Admin from "./scenes/admin";
 import Performance from "./scenes/performance";
 import Login from "./scenes/login";
 import { AuthClient } from "@dfinity/auth-client";
-
 import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
 import Wallet from "./scenes/wallet/index";
@@ -37,6 +36,7 @@ import Farmers from "./scenes/farmers/index";
 import Storage from "./scenes/storage/index";
 import { initializeRepositoryCanister } from "./hanse/interface";
 import icblast from "@infu/icblast";
+import Documents from "./scenes/documents/index";
 
 function App() {
   const dispatch = useDispatch()
@@ -50,7 +50,7 @@ function App() {
     const authClient = await AuthClient.create();
     if (await authClient.isAuthenticated()) {
       const identity = await authClient.getIdentity()
-      console.log("Your principal id", identity.getPrincipal().toString())
+      console.log("Your principal id:", identity.getPrincipal().toString())
       try {
         const role = await backendActor.my_role(identity.getPrincipal());
         if (role === "unauthorized") {
@@ -80,7 +80,7 @@ function App() {
   useEffect(() => {
     if (session) {
       getRole();
-      // initializeRepositoryCanister()
+      initializeRepositoryCanister()
     }
   }, [session]);
 
@@ -135,6 +135,7 @@ function App() {
                   <Route path="/geography" element={<Geography />} />
                   <Route path="/overview" element={<Overview />} />
                   <Route path="/daily" element={<Daily />} />
+                  <Route path="/documents" element={<Documents />} />
                   <Route path="/monthly" element={<Monthly />} />
                   <Route path="/breakdown" element={<Breakdown />} />
                   <Route path="/admin" element={<Admin />} />

@@ -30,14 +30,20 @@ shared ({ caller = initializer }) actor class () {
     type Product = Type.Product;
     type Role = Type.Role;
     type Permission = Type.Permission;
+    type Farmer = Type.Farmer;
 
     //Access control variables
     private stable var roles : AssocList.AssocList<Principal, Role> = List.nil();
     private stable var role_requests : AssocList.AssocList<Principal, Role> = List.nil();
 
-    //Products variables
+    //Products map
     var products = HashMap.HashMap<Text, Product>(0, Text.equal, Text.hash);
+
+    //Farmers map
+    var farmers = HashMap.HashMap<Text, Farmer>(0, Text.equal, Text.hash);
+
     private stable var productsEntries : [(Text, Product)] = [];
+    private stable var farmersEntries : [(Text, Farmer)] = [];
 
     //Access Control implimantaion
 
@@ -70,7 +76,7 @@ shared ({ caller = initializer }) actor class () {
         };
     };
 
-    public shared func my_role(userId: Principal) : async Text {
+    public shared func my_role(userId : Principal) : async Text {
         let role = get_role(userId);
         switch (role) {
             case (null) {
@@ -109,6 +115,8 @@ shared ({ caller = initializer }) actor class () {
         roles := AssocList.replace<Principal, Role>(roles, assignee, principal_eq, new_role).0;
         role_requests := AssocList.replace<Principal, Role>(role_requests, assignee, principal_eq, null).0;
     };
+
+    //-----------------------------------------Products implimentation------------------------------------------------
 
     public func createProduct(newProduct : Product) : async Text {
         switch (products.put(newProduct.id, newProduct)) {
@@ -165,11 +173,52 @@ shared ({ caller = initializer }) actor class () {
         return Buffer.toArray<Product>(filtered);
     };
 
+    //-----------------------------------------Farmers implimentation------------------------------------------------
+
+    public shared func createFarmer(newFarmer : Farmer) : () {
+        farmers.put(newFarmer.email, newFarmer);
+    };
+
+    public shared query func getAllFarmers() : async [Farmer] {
+        return Iter.toArray(farmers.vals());
+    };
+
+    public shared query func getFarmerByEmail(email : Text) : async Result.Result<Farmer, Text> {
+        switch (farmers.get(email)) {
+            case (null) {
+                return #err("Invalid result ID");
+            };
+            case (?result) {
+                return #ok(result);
+            };
+        };
+    };
+
+    public shared func updateFarmer(args : Farmer) : async Bool {
+        switch (farmers.get(args.email)) {
+            case (null) {
+                return false;
+            };
+            case (?result) {
+                ignore farmers.replace(result.email, args);
+                return true;
+            };
+        };
+    };
+
+    public shared func deleteFarmer(email : Text) : () {
+        farmers.delete(email);
+    };
+
+    //-----------------------------------------Upgrade methods------------------------------------------------
+
     system func preupgrade() {
         productsEntries := Iter.toArray(products.entries());
+        farmersEntries := Iter.toArray(farmers.entries());
     };
 
     system func postupgrade() {
         products := HashMap.fromIter<Text, Product>(productsEntries.vals(), 0, Text.equal, Text.hash);
+        farmers := HashMap.fromIter<Text, Farmer>(farmersEntries.vals(), 0, Text.equal, Text.hash);
     };
 };

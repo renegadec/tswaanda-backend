@@ -9,15 +9,18 @@ let repository_canister;
 let wallet;
 
 export async function initializeRepositoryCanister() {
-  const authClient = await AuthClient.create();
-  if (await authClient.isAuthenticated()) {
-    const identity = await authClient.getIdentity();
-    const userPrincipal = identity.getPrincipal().toString()
-    let exporter_ic = icblast({ identity });
-    repository_canister = await exporter_ic("chs73-3aaaa-aaaar-qabaa-cai");
-    callerWallet(identity)
-  } else {
-    console.log("User is not authenticated");
+  try {
+    const authClient = await AuthClient.create();
+    if (await authClient.isAuthenticated()) {
+      const identity = await authClient.getIdentity();
+      let exporter_ic = icblast({ identity });
+      repository_canister = await exporter_ic("chs73-3aaaa-aaaar-qabaa-cai");
+      callerWallet(identity);
+    } else {
+      console.log("User is not authenticated");
+    }
+  } catch (error) {
+    console.log("Error instantiating the repository_canister canister", error);
   }
 }
 
@@ -37,28 +40,36 @@ export const checkUserWallet = async (userPrincipal) => {
   let user_wallet_address = await repository_canister.get_wallet_principal_of(
     userPrincipal
   );
-  console.log("User wallet", user_wallet_address.toString());
+  console.log("Your wallet", user_wallet_address.toString());
   return user_wallet_address;
 };
 
 // check the wallet address of the call
 export const callerWallet = async (identity) => {
-  let exporter_ic = icblast({ identity });
-  let wallet_address = await repository_canister.get_wallet_principal_of(
-    identity.getPrincipal().toString()
-  );
-  wallet = await exporter_ic(wallet_address.toString());
-  createContractCanister()
+  try {
+    let exporter_ic = icblast({ identity });
+    let wallet_address = await repository_canister.get_wallet_principal_of(
+      identity.getPrincipal().toString()
+    );
+    console.log(wallet_address.toString())
+    wallet = await exporter_ic(wallet_address.toString());
+    createContractCanister();
+  } catch (error) {
+    console.log("Error instaitiating the wallet", error);
+  }
 };
 
 // check contract address of the call
 export const createContractCanister = async () => {
-  console.log("Caller wallet address instance", wallet);
-  // let contract_address = await wallet.mint_contract();
-  // console.log(contract_address.toString());
-  // let contract = await icblast(contract_address.toString());
-  // console.log(contract);
-  // return contract;
+  try {
+    let contract_address = await wallet.copy_contract_code();
+  console.log("Contract canister id:", contract_address.toString());
+  let contract = await icblast(contract_address.toString());
+  console.log(contract);
+  return contract;
+  } catch (error) {
+    console.log(error)
+  }
 };
 
 // // chunking file upload
