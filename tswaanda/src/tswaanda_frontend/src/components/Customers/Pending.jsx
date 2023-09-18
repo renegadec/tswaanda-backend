@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     Box,
     Select,
@@ -16,19 +16,30 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ContactCustomerForm from './ContactCustomerForm';
 
 const Pending = ({
     pendingCustomers,
     updateCustomerStatus,
-    handleShowStatusForm,
     setCustomerStatus,
     expanded,
-    showStatus,
     updating,
-    selectedCustomerId,
     handleChange }) => {
 
     const theme = useTheme();
+
+
+    const [showContact, setShowContactForm] = useState(false);
+    const [showStatusForm, setShowStatusForm] = useState(false);
+
+    const showContactForm = () => {
+        setShowContactForm(!showContact);
+        setShowStatusForm(false);
+    }
+    const handleShowStatusForm = () => {
+        setShowStatusForm(!showStatusForm);
+        setShowContactForm(false);
+    }
     return (
         <Box m="1rem 0 0 0">
             {pendingCustomers?.map((customer) => (
@@ -152,38 +163,54 @@ const Pending = ({
                                 <hr />
                                 <CardActions>
                                     <Button
-                                        onClick={() => handleShowStatusForm(customer.id)}
+                                        onClick={handleShowStatusForm}
                                         variant="outlined"
                                         size="small"
                                         style={{
                                             backgroundColor:
-                                                selectedCustomerId === customer.id && showStatus
+                                                showStatusForm
                                                     ? "white"
                                                     : undefined,
                                             color:
-                                                selectedCustomerId === customer.id && showStatus
+                                                showStatusForm
                                                     ? "green"
                                                     : "white",
                                         }}
                                     >
                                         Update Customer status
                                     </Button>
-                                    <a href={customer.profilePhoto}
+                                    <Button
+                                        onClick={showContactForm}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showContact
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showContact
+                                                    ? "green"
+                                                    : "white",
+                                        }}
                                     >
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            style={{
-                                                backgroundColor: "white",
-                                            }}
-                                        >
-                                            Download KYC docs
-                                        </Button>
-                                    </a>
+                                        Contact customer
+                                    </Button>
+
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor: "white",
+                                        }}
+                                    >
+                                        Download KYC docs
+                                    </Button>
+
                                 </CardActions>
                             </Container>
 
-                            {selectedCustomerId === customer.id && showStatus && (
+                            {showStatusForm && (
                                 <div className="">
                                     <AccordionDetails>
                                         <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
@@ -220,6 +247,9 @@ const Pending = ({
                                         </Container>
                                     </AccordionDetails>
                                 </div>
+                            )}
+                            {showContact && (
+                               <ContactCustomerForm {...{customer, setShowContactForm}}/>
                             )}
                         </Box>
                     </AccordionDetails>
