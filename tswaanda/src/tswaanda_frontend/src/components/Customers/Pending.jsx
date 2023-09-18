@@ -249,7 +249,7 @@ const Pending = ({
                                 </div>
                             )}
                             {showContact && (
-                               <ContactCustomerForm {...{customer, setShowContactForm}}/>
+                               <ContactCustomerForm {...{customer, setShowContactForm, theme}}/>
                             )}
                         </Box>
                     </AccordionDetails>
