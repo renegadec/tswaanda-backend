@@ -17,9 +17,10 @@ import {
 } from "@mui/material";
 import Header from "../../components/Header";
 import { toast } from "react-toastify";
-import { canister} from "../../config";
+import { canister } from "../../config";
 import Pending from "../../components/Customers/Pending";
 import Approved from "../../components/Customers/Approved";
+import { sendAutomaticEmailMessage } from "../../components/Customers/util";
 
 const Customers = () => {
   const [expanded, setExpanded] = useState(false);
@@ -160,8 +161,11 @@ const Customers = () => {
           userId,
           data[customerIndex]
         );
+        if (customerStatus === "approved") {
+          await sendAutomaticEmailMessage(data[customerIndex].firstName, data[customerIndex].email)
+        }
         toast.success(
-          `Customer status have been updated to ${customerStatus} `,
+          `Customer status have been updated to ${customerStatus} ${customerStatus === "approved" ? ", Approval email have been sent" : ""} `,
           {
             autoClose: 5000,
             position: "top-center",
