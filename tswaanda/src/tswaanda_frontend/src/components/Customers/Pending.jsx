@@ -17,6 +17,8 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContactCustomerForm from './ContactCustomerForm';
+import IdentficationDoc from './IdentficationDoc';
+import ProofOfAddress from './ProofOfAddress';
 
 const Pending = ({
     pendingCustomers,
@@ -28,18 +30,42 @@ const Pending = ({
 
     const theme = useTheme();
 
-
     const [showContact, setShowContactForm] = useState(false);
     const [showStatusForm, setShowStatusForm] = useState(false);
+    const [showIdentification, setShowIdentification] = useState(false);
+    const [showProofOfAddress, setShowProofOfAddress] = useState(false);
+
+    const [openPOAModal, setPOAModal] = useState(false);
 
     const showContactForm = () => {
         setShowContactForm(!showContact);
         setShowStatusForm(false);
+        setShowIdentification(false);
+        setShowProofOfAddress(false);
     }
+
+    const showIdentificationDoc = () => {
+        setShowIdentification(!showIdentification);
+        setShowStatusForm(false);
+        setShowContactForm(false);
+        setShowProofOfAddress(false);
+    }
+
+    const showProofOfAddressDoc = () => {
+        setShowProofOfAddress(!showProofOfAddress);
+        setPOAModal(!openPOAModal)
+        setShowStatusForm(false);
+        setShowContactForm(false);
+        setShowIdentification(false);
+    }
+
     const handleShowStatusForm = () => {
         setShowStatusForm(!showStatusForm);
         setShowContactForm(false);
+        setShowIdentification(false);
+        setShowProofOfAddress(false);
     }
+
     return (
         <Box m="1rem 0 0 0">
             {pendingCustomers?.map((customer) => (
@@ -196,6 +222,40 @@ const Pending = ({
                                     >
                                         Contact customer
                                     </Button>
+                                    <Button
+                                        onClick={showIdentificationDoc}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showIdentification
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showIdentification
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        View Identification
+                                    </Button>
+                                    <Button
+                                        onClick={showProofOfAddressDoc}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showProofOfAddress
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showProofOfAddress
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        View Proof of Address
+                                    </Button>
 
                                     <Button
                                         variant="outlined"
@@ -251,6 +311,13 @@ const Pending = ({
                             {showContact && (
                                <ContactCustomerForm {...{customer, setShowContactForm, theme}}/>
                             )}
+                            {showIdentification && (
+                                <IdentficationDoc/>
+                            )}
+                            {showProofOfAddress && (
+                                <ProofOfAddress {...{openPOAModal, setPOAModal, showProofOfAddressDoc}}/>
+                            )}
+                            
                         </Box>
                     </AccordionDetails>
                 </Accordion>
