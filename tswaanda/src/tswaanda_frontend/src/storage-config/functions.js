@@ -142,6 +142,12 @@ export async function deleteAsset(url) {
   }
 }
 
+export const getAsset = async (url) => {
+  const assetId = getAssetId(url);
+  const asset = await fileStorageActor.get_asset(assetId);
+  return asset;
+}
+
 function getAssetId(url) {
   const parts = url.split("/");
   const assetId = parts[parts.length - 1];

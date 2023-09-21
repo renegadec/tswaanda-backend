@@ -36,6 +36,7 @@ const Pending = ({
     const [showProofOfAddress, setShowProofOfAddress] = useState(false);
 
     const [openPOAModal, setPOAModal] = useState(false);
+    const [openIDModal, setIDModal] = useState(false);
 
     const showContactForm = () => {
         setShowContactForm(!showContact);
@@ -46,6 +47,7 @@ const Pending = ({
 
     const showIdentificationDoc = () => {
         setShowIdentification(!showIdentification);
+        setIDModal(!openIDModal)
         setShowStatusForm(false);
         setShowContactForm(false);
         setShowProofOfAddress(false);
@@ -312,10 +314,10 @@ const Pending = ({
                                <ContactCustomerForm {...{customer, setShowContactForm, theme}}/>
                             )}
                             {showIdentification && (
-                                <IdentficationDoc/>
+                                <IdentficationDoc {...{setIDModal, openIDModal, showIdentificationDoc, customer }}/>
                             )}
                             {showProofOfAddress && (
-                                <ProofOfAddress {...{openPOAModal, setPOAModal, showProofOfAddressDoc}}/>
+                                <ProofOfAddress {...{openPOAModal, setPOAModal, showProofOfAddressDoc, customer}}/>
                             )}
                             
                         </Box>

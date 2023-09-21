@@ -15,7 +15,6 @@ import {
   Tab,
   Button,
 } from "@mui/material";
-import Header from "../../components/Header";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -32,9 +31,7 @@ const PendingApprovalComponent = ({
   selectedOrderId,
   showContact,
   showStatus,
-  showStep,
   updating,
-  setOrderStep,
   setOrderStatus,
 }) => {
   return (

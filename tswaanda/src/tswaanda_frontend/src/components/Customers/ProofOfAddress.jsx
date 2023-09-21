@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import Button from '@mui/material/Button';
+import React, { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -7,69 +6,79 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { getAsset } from '../../storage-config/functions';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
+    '& .MuiDialogContent-root': {
+        padding: theme.spacing(2),
+    },
+    '& .MuiDialogActions-root': {
+        padding: theme.spacing(1),
+    },
 }));
 
-const ProofOfAddress = ({ setPOAModal, openPOAModal, showProofOfAddressDoc }) => {
+const ProofOfAddress = ({ setPOAModal, openPOAModal, showProofOfAddressDoc, customer }) => {
+    const [isPdf, setIsPdf] = useState(false)
+
+    const theme = useTheme();
 
     const handlePOAModalClose = () => {
-      setPOAModal(false);
-      showProofOfAddressDoc()
+        setPOAModal(false);
+        showProofOfAddressDoc()
     };
-  return (
-    <div>
-    <BootstrapDialog
-      onClose={handlePOAModalClose}
-      aria-labelledby="customized-dialog-title"
-      open={openPOAModal}
-    >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        Modal title
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={handlePOAModalClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent dividers>
-        <Typography gutterBottom>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros.
-        </Typography>
-        <Typography gutterBottom>
-          Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-          Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
-        </Typography>
-        <Typography gutterBottom>
-          Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus
-          magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec
-          ullamcorper nulla non metus auctor fringilla.
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={handlePOAModalClose}>
-          Save changes
-        </Button>
-      </DialogActions>
-    </BootstrapDialog>
-  </div>
-  )
+
+    useEffect(() => {
+        let asset = getAsset(customer.proofOfAddressCopy)
+        console.log(asset)
+        if (asset.type === "application/pdf") {
+            setIsPdf(true)
+        }
+
+    }, [customer])
+
+    const newPlugin = defaultLayoutPlugin()
+    return (
+        <div>
+            <BootstrapDialog
+                onClose={handlePOAModalClose}
+                aria-labelledby="customized-dialog-title"
+                open={openPOAModal}
+            >
+                <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.background.alt }} id="customized-dialog-title">
+                    Proof of Address Document
+                </DialogTitle>
+                <IconButton
+                    aria-label="close"
+                    onClick={handlePOAModalClose}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: "white",
+                        backgroundColor: theme.palette.background.alt
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent dividers sx={{ backgroundColor: theme.palette.background.alt,  }}>
+                    <div className="" style={{ width: "900px", height: "900px", overflow: "auto", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                            {customer
+                                && (
+                                    <Viewer fileUrl={customer.proofOfAddressCopy} plugins={[newPlugin]} />
+
+                                )}
+                        </Worker>
+                    </div>
+                </DialogContent>
+            </BootstrapDialog>
+        </div>
+    )
 }
 
 export default ProofOfAddress
