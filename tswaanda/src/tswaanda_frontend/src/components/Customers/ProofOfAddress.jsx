@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -33,11 +33,18 @@ const ProofOfAddress = ({ setPOAModal, openPOAModal, showProofOfAddressDoc, cust
     };
 
     useEffect(() => {
-        let asset = getAsset(customer.proofOfAddressCopy)
-        console.log(asset)
-        if (asset.type === "application/pdf") {
-            setIsPdf(true)
+        const getFile = async () => {
+            try {
+                let asset = await getAsset(customer.proofOfAddressCopy)
+                console.log(asset)
+                if (asset.ok.content_type === "application/pdf") {
+                    setIsPdf(true)
+                }
+            } catch (error) {
+                console.log(error)
+            }
         }
+        getFile()
 
     }, [customer])
 
@@ -65,15 +72,16 @@ const ProofOfAddress = ({ setPOAModal, openPOAModal, showProofOfAddressDoc, cust
                 >
                     <CloseIcon />
                 </IconButton>
-                <DialogContent dividers sx={{ backgroundColor: theme.palette.background.alt,  }}>
+                <DialogContent dividers sx={{ backgroundColor: theme.palette.background.alt, }}>
                     <div className="" style={{ width: "900px", height: "900px", overflow: "auto", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                        {isPdf ? <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                             {customer
                                 && (
                                     <Viewer fileUrl={customer.proofOfAddressCopy} plugins={[newPlugin]} />
 
                                 )}
-                        </Worker>
+                        </Worker> :
+                            <img src={customer.proofOfAddressCopy} alt="Proof of Address" style={{ width: "100%", height: "100%" }} />}
                     </div>
                 </DialogContent>
             </BootstrapDialog>

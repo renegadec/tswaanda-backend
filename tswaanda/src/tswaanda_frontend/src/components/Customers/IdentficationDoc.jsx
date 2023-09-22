@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -11,6 +11,7 @@ import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { getAsset } from '../../storage-config/functions';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -23,14 +24,30 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 const IdentficationDoc = ({ setIDModal, openIDModal, showIdentificationDoc, customer }) => {
   const theme = useTheme();
+  const [isPdf, setIsPdf] = useState(false)
 
   const handlePOAModalClose = () => {
     setIDModal(false);
     showIdentificationDoc()
   };
 
+      useEffect(() => {
+        const getFile = async () => {
+            try {
+                let asset = await getAsset(customer.kycIDCopy)
+                console.log(asset)
+                if (asset.ok.content_type === "application/pdf") {
+                    setIsPdf(true)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        getFile()
+
+    }, [customer])
+
   const newPlugin = defaultLayoutPlugin()
-  console.log(customer)
   return (
     <div>
       <BootstrapDialog
@@ -56,13 +73,13 @@ const IdentficationDoc = ({ setIDModal, openIDModal, showIdentificationDoc, cust
         </IconButton>
         <DialogContent dividers sx={{ backgroundColor: theme.palette.background.alt, }}>
           <div className="" style={{ width: "900px", height: "900px", overflow: "auto", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+           {isPdf ?  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
               {customer
                 && (
                   <Viewer fileUrl={customer.kycIDCopy} plugins={[newPlugin]} />
 
                 )}
-            </Worker>
+            </Worker> : <img src={customer.kycIDCopy} alt="ID" style={{ width: "100%" , height: "100%" }} />}
           </div>
         </DialogContent>
       </BootstrapDialog>
