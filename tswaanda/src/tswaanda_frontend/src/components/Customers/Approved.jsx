@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     Box,
     Select,
@@ -20,7 +20,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 const Approved = ({
     approvedCustomers,
     updateCustomerStatus,
-    handleShowStatusForm,
     setCustomerStatus,
     expanded,
     showStatus,
@@ -30,6 +29,45 @@ const Approved = ({
 }) => {
 
     const theme = useTheme();
+
+    const [showContact, setShowContactForm] = useState(false);
+    const [showStatusForm, setShowStatusForm] = useState(false);
+    const [showIdentification, setShowIdentification] = useState(false);
+    const [showProofOfAddress, setShowProofOfAddress] = useState(false);
+
+    const [openPOAModal, setPOAModal] = useState(false);
+    const [openIDModal, setIDModal] = useState(false);
+
+    const showContactForm = () => {
+        setShowContactForm(!showContact);
+        setShowStatusForm(false);
+        setShowIdentification(false);
+        setShowProofOfAddress(false);
+    }
+
+    const showIdentificationDoc = () => {
+        setShowIdentification(!showIdentification);
+        setIDModal(!openIDModal)
+        setShowStatusForm(false);
+        setShowContactForm(false);
+        setShowProofOfAddress(false);
+    }
+
+    const showProofOfAddressDoc = () => {
+        setShowProofOfAddress(!showProofOfAddress);
+        setPOAModal(!openPOAModal)
+        setShowStatusForm(false);
+        setShowContactForm(false);
+        setShowIdentification(false);
+    }
+
+    const handleShowStatusForm = () => {
+        setShowStatusForm(!showStatusForm);
+        setShowContactForm(false);
+        setShowIdentification(false);
+        setShowProofOfAddress(false);
+    }
+
     return (
         <Box m="1rem 0 0 0">
             {approvedCustomers?.map((customer) => (
@@ -169,22 +207,61 @@ const Approved = ({
                                     >
                                         Update Customer status
                                     </Button>
-                                    <a href={customer.profilePhoto}
+                                    <Button
+                                        onClick={showContactForm}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showContact
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showContact
+                                                    ? "green"
+                                                    : "white",
+                                        }}
                                     >
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            style={{
-                                                backgroundColor: "white",
-                                            }}
-                                        >
-                                            Download KYC docs
-                                        </Button>
-                                    </a>
+                                        Contact customer
+                                    </Button>
+                                    <Button
+                                        onClick={showIdentificationDoc}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showIdentification
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showIdentification
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        View Identification
+                                    </Button>
+                                    <Button
+                                        onClick={showProofOfAddressDoc}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                showProofOfAddress
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                showProofOfAddress
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        View Proof of Address
+                                    </Button>
                                 </CardActions>
                             </Container>
 
-                            {selectedCustomerId === customer.id && showStatus && (
+                            {showStatusForm && (
                                 <div className="">
                                     <AccordionDetails>
                                         <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
@@ -199,7 +276,7 @@ const Approved = ({
                                                     <MenuItem value="pending">
                                                         Pending Approval
                                                     </MenuItem>
-                                                    <MenuItem value="Approved">Approved</MenuItem>
+                                                    <MenuItem value="approved">Approved</MenuItem>
                                                 </Select>
                                             </FormControl>
 
@@ -221,6 +298,15 @@ const Approved = ({
                                         </Container>
                                     </AccordionDetails>
                                 </div>
+                            )}
+                            {showContact && (
+                               <ContactCustomerForm {...{customer, setShowContactForm, theme}}/>
+                            )}
+                            {showIdentification && (
+                                <IdentficationDoc {...{setIDModal, openIDModal, showIdentificationDoc, customer }}/>
+                            )}
+                            {showProofOfAddress && (
+                                <ProofOfAddress {...{openPOAModal, setPOAModal, showProofOfAddressDoc, customer}}/>
                             )}
                         </Box>
                     </AccordionDetails>

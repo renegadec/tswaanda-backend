@@ -3,8 +3,7 @@ import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import IconButton from '@mui/material/IconButton';
+import {IconButton, Button} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
@@ -58,6 +57,10 @@ const IdentficationDoc = ({ setIDModal, openIDModal, showIdentificationDoc, cust
         <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.background.alt }} id="customized-dialog-title">
           Proof of Address Document
         </DialogTitle>
+
+        {!isPdf && <Button variant="outlined" color="primary" onClick={() => window.open(customer.proofOfAddressCopy, "_blank")} sx={{ m: 2 }}>
+                    Download Document
+                </Button>}
         <IconButton
           aria-label="close"
           onClick={handlePOAModalClose}

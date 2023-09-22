@@ -259,16 +259,6 @@ const Pending = ({
                                         View Proof of Address
                                     </Button>
 
-                                    <Button
-                                        variant="outlined"
-                                        size="small"
-                                        style={{
-                                            backgroundColor: "white",
-                                        }}
-                                    >
-                                        Download KYC docs
-                                    </Button>
-
                                 </CardActions>
                             </Container>
 
