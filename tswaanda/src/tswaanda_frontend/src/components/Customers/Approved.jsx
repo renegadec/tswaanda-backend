@@ -16,6 +16,9 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import IdentficationDoc from './IdentficationDoc';
+import ProofOfAddress from './ProofOfAddress';
+import ContactCustomerForm from './ContactCustomerForm';
 
 const Approved = ({
     approvedCustomers,
@@ -300,13 +303,13 @@ const Approved = ({
                                 </div>
                             )}
                             {showContact && (
-                               <ContactCustomerForm {...{customer, setShowContactForm, theme}}/>
+                                <ContactCustomerForm {...{ customer, setShowContactForm, theme }} />
                             )}
                             {showIdentification && (
-                                <IdentficationDoc {...{setIDModal, openIDModal, showIdentificationDoc, customer }}/>
+                                <IdentficationDoc {...{ setIDModal, openIDModal, showIdentificationDoc, customer }} />
                             )}
                             {showProofOfAddress && (
-                                <ProofOfAddress {...{openPOAModal, setPOAModal, showProofOfAddressDoc, customer}}/>
+                                <ProofOfAddress {...{ openPOAModal, setPOAModal, showProofOfAddressDoc, customer }} />
                             )}
                         </Box>
                     </AccordionDetails>

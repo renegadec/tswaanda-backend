@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { sendCustomerEmailMessage } from './util';
+import { toast } from "react-toastify";
 
 
 const ContactCustomerForm = ({ customer, setShowContactForm, theme }) => {
@@ -23,10 +24,26 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme }) => {
         try {
             if (message !== "") {
                 await sendCustomerEmailMessage(message, customer.email)
+                toast.success(
+                    `Message sent to ${customer.email} `,
+                    {
+                        autoClose: 5000,
+                        position: "top-center",
+                        hideProgressBar: true,
+                    }
+                );
                 setSending(false)
             }
         } catch (error) {
             console.log("Error sending email", error)
+            toast.error(
+                `Error sending message to ${customer.email} `,
+                {
+                    autoClose: 5000,
+                    position: "top-center",
+                    hideProgressBar: true,
+                }
+            );
             setSending(false)
         }
     }

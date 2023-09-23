@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Select,
@@ -34,6 +34,20 @@ const PendingApprovalComponent = ({
   updating,
   setOrderStatus,
 }) => {
+
+const [updateSatus, setUpdateStatus] = useState(false)
+const [contactCustomer, setContactCustomer] = useState(false)
+
+const handleContactCustomer = () => {
+  setContactCustomer(!contactCustomer)
+  setUpdateStatus(false)
+}
+
+const handleUpdateStatus = () => {
+  setUpdateStatus(!updateSatus)
+  setContactCustomer(false)
+}
+
   return (
     <Box m="1rem 0 0 0">
       {pendingOrders?.map((order) => (
@@ -140,16 +154,16 @@ const PendingApprovalComponent = ({
               <hr />
               <CardActions>
                 <Button
-                  onClick={() => handleShowStatusForm(order.orderId)}
+                  onClick={handleUpdateStatus}
                   variant="outlined"
                   size="small"
                   style={{
                     backgroundColor:
-                      selectedOrderId === order.orderId && showStatus
+                      updateSatus
                         ? "white"
                         : undefined,
                     color:
-                      selectedOrderId === order.orderId && showStatus
+                      updateSatus
                         ? "green"
                         : "white",
                   }}
@@ -157,16 +171,16 @@ const PendingApprovalComponent = ({
                   Update Order status
                 </Button>
                 <Button
-                  onClick={() => handleShowCustomerForm(order.orderId)}
+                  onClick={handleContactCustomer}
                   variant="outlined"
                   size="small"
                   style={{
                     backgroundColor:
-                      selectedOrderId === order.orderId && showContact
+                      contactCustomer
                         ? "white"
                         : undefined,
                     color:
-                      selectedOrderId === order.orderId && showContact
+                      contactCustomer
                         ? "green"
                         : "white",
                   }}
@@ -174,7 +188,7 @@ const PendingApprovalComponent = ({
                   Contact customer
                 </Button>
               </CardActions>
-              {selectedOrderId === order.orderId && showStatus && (
+              {updateSatus && (
                 <div className="">
                   <AccordionDetails>
                     <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
@@ -214,7 +228,7 @@ const PendingApprovalComponent = ({
                   </AccordionDetails>
                 </div>
               )}
-              {selectedOrderId === order.orderId && showContact && (
+              {contactCustomer && (
                 <div className="">Contact the customer of the order</div>
               )}
             </Box>
