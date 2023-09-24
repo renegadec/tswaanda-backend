@@ -1,26 +1,21 @@
 import React, { useState } from "react";
 import {
   Box,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Container,
   Typography,
-  useTheme,
   Grid,
   CardActions,
-  TextField,
-  Tabs,
-  Tab,
   Button,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import UpdateOderStatus from "./UpdateOderStatus";
+import ContactCustomerOnOrder from "./ContactCustomerOnOrder";
 
 const PendingApprovalComponent = ({
+  updated,
+  setUpdated,
   pendingOrders,
   handleChange,
   handleShowCustomerForm,
@@ -35,18 +30,23 @@ const PendingApprovalComponent = ({
   setOrderStatus,
 }) => {
 
-const [updateSatus, setUpdateStatus] = useState(false)
-const [contactCustomer, setContactCustomer] = useState(false)
+  const [updateSatus, setUpdateStatus] = useState(false)
+  const [contactCustomer, setContactCustomer] = useState(false)
 
-const handleContactCustomer = () => {
-  setContactCustomer(!contactCustomer)
-  setUpdateStatus(false)
-}
+  const [openStatusModal, setStatusModal] = useState(false);
+  const [openContactModal, setContactModal] = useState(false);
 
-const handleUpdateStatus = () => {
-  setUpdateStatus(!updateSatus)
-  setContactCustomer(false)
-}
+  const handleContactCustomer = () => {
+    setContactCustomer(!contactCustomer)
+    setContactModal(true)
+    setUpdateStatus(false)
+  }
+
+  const handleUpdateStatus = () => {
+    setUpdateStatus(!updateSatus)
+    setStatusModal(true)
+    setContactCustomer(false)
+  }
 
   return (
     <Box m="1rem 0 0 0">
@@ -95,38 +95,38 @@ const handleUpdateStatus = () => {
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
-               
-                  <Grid key={order.orderProducts.id} item xs={4} display="flex" alignItems="center">
-                    <Box
-                      component="img"
-                      alt="profile"
-                      src={order.orderProducts.image}
-                      height="100px"
-                      width="100px"
-                      sx={{ objectFit: "cover" }}
-                    />
-                    <Box m="0 0.1rem 0 0.1rem" textAlign="left">
-                      <Typography
-                        fontSize="0.9rem"
-                        sx={{ color: theme.palette.secondary[100] }}
-                      >
-                        Name: {order.orderProducts.name}
-                      </Typography>
-                      <Typography
-                        fontSize="0.9rem"
-                        sx={{ color: theme.palette.secondary[100] }}
-                      >
-                        Quantity: {Number(order.orderProducts.quantity)}
-                      </Typography>
-                      <Typography
-                        fontSize="0.9rem"
-                        sx={{ color: theme.palette.secondary[100] }}
-                      >
-                        Price: ${order.orderProducts.price.toFixed(2)}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                
+
+                <Grid key={order.orderProducts.id} item xs={4} display="flex" alignItems="center">
+                  <Box
+                    component="img"
+                    alt="profile"
+                    src={order.orderProducts.image}
+                    height="100px"
+                    width="100px"
+                    sx={{ objectFit: "cover" }}
+                  />
+                  <Box m="0 0.1rem 0 0.1rem" textAlign="left">
+                    <Typography
+                      fontSize="0.9rem"
+                      sx={{ color: theme.palette.secondary[100] }}
+                    >
+                      Name: {order.orderProducts.name}
+                    </Typography>
+                    <Typography
+                      fontSize="0.9rem"
+                      sx={{ color: theme.palette.secondary[100] }}
+                    >
+                      Quantity: {Number(order.orderProducts.quantity)}
+                    </Typography>
+                    <Typography
+                      fontSize="0.9rem"
+                      sx={{ color: theme.palette.secondary[100] }}
+                    >
+                      Price: ${order.orderProducts.price.toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Grid>
+
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
@@ -189,47 +189,11 @@ const handleUpdateStatus = () => {
                 </Button>
               </CardActions>
               {updateSatus && (
-                <div className="">
-                  <AccordionDetails>
-                    <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                      <FormControl fullWidth margin="dense">
-                        <InputLabel id="status-label">Order status</InputLabel>
-                        <Select
-                          labelId="status-label"
-                          onChange={(e) => setOrderStatus(e.target.value)}
-                        >
-                          <MenuItem value="Pending Approval">
-                            Pending Approval
-                          </MenuItem>
-                          <MenuItem value="Approved">
-                            Approved-processing
-                          </MenuItem>
-                          <MenuItem value="Shipped">Shipped</MenuItem>
-                          <MenuItem value="Delivered">Delivered</MenuItem>
-                        </Select>
-                      </FormControl>
-
-                      <Button
-                        variant="contained"
-                        disabled={updating}
-                        color="primary"
-                        onClick={() => updatePendingOrderStatus(order.orderId)}
-                        sx={{
-                          backgroundColor: theme.palette.secondary.light,
-                          color: theme.palette.background.alt,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                        }}
-                      >
-                        {updating ? "Updating..." : "Update order"}
-                      </Button>
-                    </Container>
-                  </AccordionDetails>
-                </div>
+                <UpdateOderStatus {...{ updatePendingOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, order, updated,
+                  setUpdated, }} />
               )}
               {contactCustomer && (
-                <div className="">Contact the customer of the order</div>
+               <ContactCustomerOnOrder {...{openContactModal, setContactModal, theme}}/>
               )}
             </Box>
           </AccordionDetails>

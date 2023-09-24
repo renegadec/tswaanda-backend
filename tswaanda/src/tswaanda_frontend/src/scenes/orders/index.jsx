@@ -7,6 +7,7 @@ import ProcessingComponent from "../../components/Orders/ProcessingComponent";
 import ShippedComponent from "../../components/Orders/ShippedComponent";
 import DeliveredComponent from "../../components/Orders/DeliveredComponent";
 import { marketActor } from "../../config";
+import { sendAutomaticOrderUpdateEmail } from "../../emails/orders";
 
 const Orders = () => {
   const theme = useTheme();
@@ -28,6 +29,7 @@ const Orders = () => {
   const [orderStatus, setOrderStatus] = useState("");
   const [orderStep, setOrderStep] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   //Setting of the value of the currect tab
   const [value, setValue] = useState(0);
@@ -156,7 +158,11 @@ const Orders = () => {
           data[orderIndex].step = Number(3);
         }
         const res = await marketActor.updatePOrder(id, data[orderIndex]);
-        toast.success("Order status have been updated", {
+        if (orderStatus !== "pending") {
+          await sendAutomaticOrderUpdateEmail(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus);
+        }
+        setUpdated(true);
+        toast.success(`Order status have been updated${orderStatus !== "pending" ? `. Order update email sent to the customer ${data[orderIndex].userEmail}`: ``}`, {
           autoClose: 5000,
           position: "top-center",
           hideProgressBar: true,
@@ -227,6 +233,8 @@ const Orders = () => {
         return (
           <PendingApprovalComponent
             {...{
+              updated,
+              setUpdated,
               pendingOrders,
               handleShowStepForm,
               handleChange,
@@ -249,6 +257,8 @@ const Orders = () => {
         return (
           <ProcessingComponent
             {...{
+              updated,
+              setUpdated,
               approvedOrders,
               handleShowStepForm,
               handleChange,
@@ -271,6 +281,8 @@ const Orders = () => {
         return (
           <ShippedComponent
             {...{
+              updated,
+              setUpdated,
               shippedOrders,
               handleShowStepForm,
               handleChange,
@@ -293,6 +305,8 @@ const Orders = () => {
         return (
           <DeliveredComponent
             {...{
+              updated,
+              setUpdated,
               deliveredOrders,
               handleShowStepForm,
               handleChange,

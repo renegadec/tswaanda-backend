@@ -8,7 +8,7 @@ import {
     Button,
 } from "@mui/material";
 import AccordionDetails from "@mui/material/AccordionDetails";
-import { sendCustomerEmailMessage } from './util';
+import { sendCustomerEmailMessage } from '../../emails/kycApprovals';
 import { toast } from "react-toastify";
 
 

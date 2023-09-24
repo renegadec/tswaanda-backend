@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Select,
@@ -37,6 +37,24 @@ const ProcessingComponent = ({
   setOrderStep,
   setOrderStatus,
 }) => {
+
+  const [updateSatus, setUpdateStatus] = useState(false)
+  const [contactCustomer, setContactCustomer] = useState(false)
+
+  const [openStatusModal, setStatusModal] = useState(false);
+  const [openContactModal, setContactModal] = useState(false);
+
+  const handleContactCustomer = () => {
+    setContactCustomer(!contactCustomer)
+    setContactModal(true)
+    setUpdateStatus(false)
+  }
+
+  const handleUpdateStatus = () => {
+    setUpdateStatus(!updateSatus)
+    setStatusModal(true)
+    setContactCustomer(false)
+  }
   return (
     <Box m="1rem 0 0 0">
       {approvedOrders?.map((order) => (

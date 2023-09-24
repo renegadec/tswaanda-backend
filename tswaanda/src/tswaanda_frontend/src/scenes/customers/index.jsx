@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { canister } from "../../config";
 import Pending from "../../components/Customers/Pending";
 import Approved from "../../components/Customers/Approved";
-import { sendAutomaticEmailMessage } from "../../components/Customers/util";
+import { sendAutomaticEmailMessage } from "../../emails/kycApprovals";
 
 const Customers = () => {
   const [expanded, setExpanded] = useState(false);
