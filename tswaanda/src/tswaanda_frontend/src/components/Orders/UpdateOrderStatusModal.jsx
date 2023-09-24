@@ -24,15 +24,15 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-const UpdateOderStatus = ({ openStatusModal, updatePendingOrderStatus, setStatusModal, setOrderStatus, updating, theme, order, updated,
-    setUpdated, }) => {
+const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusModal, setOrderStatus, updating, theme, order, updated,
+    setUpdated }) => {
 
     const handleStatusModalClose = () => {
         setStatusModal(false);
     }
 
     const handleUpdateOrderStatus = async () => {
-        updatePendingOrderStatus(order.orderId)
+        updateOrderStatus(order.orderId)
     }
 
     useEffect(() => {
@@ -41,6 +41,8 @@ const UpdateOderStatus = ({ openStatusModal, updatePendingOrderStatus, setStatus
             setUpdated(false)
         }
     }, [updated])
+
+    console.log("The order in the modal", order)
 
     return (
         <div>
@@ -111,4 +113,4 @@ const UpdateOderStatus = ({ openStatusModal, updatePendingOrderStatus, setStatus
     )
 }
 
-export default UpdateOderStatus
+export default UpdateOrderStatusModal

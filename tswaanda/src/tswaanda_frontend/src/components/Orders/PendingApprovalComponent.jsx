@@ -10,7 +10,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import UpdateOderStatus from "./UpdateOderStatus";
+import UpdateOrderStatusModal from "./UpdateOrderStatusModal";
 import ContactCustomerOnOrder from "./ContactCustomerOnOrder";
 
 const PendingApprovalComponent = ({
@@ -48,11 +48,15 @@ const PendingApprovalComponent = ({
     setContactCustomer(false)
   }
 
+  const updateOrderStatus = (id) => {
+    updatePendingOrderStatus(id)
+  }
+
   return (
     <Box m="1rem 0 0 0">
-      {pendingOrders?.map((order) => (
+      {pendingOrders?.map((order, index) => (
         <Accordion
-          key={order.orderId}
+          key={index}
           expanded={expanded === order.orderId}
           onChange={handleChange(order.orderId)}
           sx={{ backgroundColor: theme.palette.background.alt }}
@@ -189,8 +193,8 @@ const PendingApprovalComponent = ({
                 </Button>
               </CardActions>
               {updateSatus && (
-                <UpdateOderStatus {...{ updatePendingOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, order, updated,
-                  setUpdated, }} />
+                <UpdateOrderStatusModal {...{ updateOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, order, updated,
+                  setUpdated }} />
               )}
               {contactCustomer && (
                <ContactCustomerOnOrder {...{openContactModal, setContactModal, theme}}/>
