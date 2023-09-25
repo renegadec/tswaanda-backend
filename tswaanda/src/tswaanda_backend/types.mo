@@ -42,4 +42,14 @@ module {
         produceCategories : Text;
         created: ?Int;
     };
+
+    public type ProductReview = {
+        id: Text;
+        productId : Text;
+        userName : Text;
+        userLastName : Text;
+        rating : Int32;
+        review : Text;
+        created: ?Int;
+    };
 }

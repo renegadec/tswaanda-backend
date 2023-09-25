@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -30,6 +30,7 @@ const PendingApprovalComponent = ({
   setOrderStatus,
 }) => {
 
+  const [orders, setOrders] = useState([])
   const [updateSatus, setUpdateStatus] = useState(false)
   const [contactCustomer, setContactCustomer] = useState(false)
 
@@ -52,9 +53,16 @@ const PendingApprovalComponent = ({
     updatePendingOrderStatus(id)
   }
 
+  useEffect(() => {
+    setOrders(pendingOrders)
+  }, [pendingOrders])
+
+  console.log(orders)
+
+
   return (
     <Box m="1rem 0 0 0">
-      {pendingOrders?.map((order, index) => (
+      {orders?.map((order, index) => (
         <Accordion
           key={index}
           expanded={expanded === order.orderId}

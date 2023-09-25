@@ -31,6 +31,7 @@ shared ({ caller = initializer }) actor class () {
     type Role = Type.Role;
     type Permission = Type.Permission;
     type Farmer = Type.Farmer;
+    type ProductReview = Type.ProductReview;
 
     //Access control variables
     private stable var roles : AssocList.AssocList<Principal, Role> = List.nil();
@@ -38,12 +39,14 @@ shared ({ caller = initializer }) actor class () {
 
     //Products map
     var products = HashMap.HashMap<Text, Product>(0, Text.equal, Text.hash);
+    var productReviews = HashMap.HashMap<Text, List.List<ProductReview>>(0, Text.equal, Text.hash);
 
     //Farmers map
     var farmers = HashMap.HashMap<Text, Farmer>(0, Text.equal, Text.hash);
 
     private stable var productsEntries : [(Text, Product)] = [];
     private stable var farmersEntries : [(Text, Farmer)] = [];
+    private stable var productReviewsEntries : [(Text, List.List<ProductReview>)] = [];
 
     //-----------------------------------------Access control implimentation---------------------------------------------
 
@@ -173,6 +176,32 @@ shared ({ caller = initializer }) actor class () {
         return Buffer.toArray<Product>(filtered);
     };
 
+    public shared func addProductReview(review : ProductReview) : () {
+        var reviews: List.List<ProductReview> = switch (productReviews.get(review.productId)) {
+            case (null) {
+                List.nil();
+            };
+            case (?result) {
+                result;
+            };
+        };
+        reviews := List.push(review, reviews);
+        productReviews.put(review.productId, reviews);
+    };
+
+    public shared query func getProductReviews(productId : Text) : async [ProductReview] {
+        switch (productReviews.get(productId)) {
+            case (null) {
+                return [];
+            };
+            case (?result) {
+                return List.toArray(result);
+            };
+        };
+    };
+
+
+
     //----------------------------------------------Farmers implimentation------------------------------------------------
 
     public shared func createFarmer(newFarmer : Farmer) : () {
@@ -215,10 +244,12 @@ shared ({ caller = initializer }) actor class () {
     system func preupgrade() {
         productsEntries := Iter.toArray(products.entries());
         farmersEntries := Iter.toArray(farmers.entries());
+        // productReviewsEntries := Iter.toArray(productReviews.entries());
     };
 
     system func postupgrade() {
         products := HashMap.fromIter<Text, Product>(productsEntries.vals(), 0, Text.equal, Text.hash);
         farmers := HashMap.fromIter<Text, Farmer>(farmersEntries.vals(), 0, Text.equal, Text.hash);
+        // productReviews := HashMap.fromIter<Text, List.List<ProductReview>>(productReviewsEntries.vals(), 0, Text.equal, Text.hash);
     };
 };

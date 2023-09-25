@@ -27,6 +27,8 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusModal, setOrderStatus, updating, theme, order, updated,
     setUpdated }) => {
 
+    const [orderValue, setOrderValue] = useState(null)
+
     const handleStatusModalClose = () => {
         setStatusModal(false);
     }
@@ -42,7 +44,11 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
         }
     }, [updated])
 
-    console.log("The order in the modal", order)
+   useEffect(() => {
+    
+        setOrderValue(order)
+   
+   }, [order])
 
     return (
         <div>
