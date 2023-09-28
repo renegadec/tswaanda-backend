@@ -19,23 +19,37 @@ module {
         id: Text;
         name : Text;
         price : Int32;
-        image : Blob;
         minOrder : Int32;
         shortDescription : Text;
         fullDescription : Text;
         category : Text;
-        images : Images;
-        additionalInformation : AdditionalInformation;
-    };
-    public type AdditionalInformation = {
-        price : Int32;
+        images : [Text];
         weight : Int32;
         availability : Text;
+        // created: ?Int;
     };
 
-    public type Images = {
-        image1 : Blob;
-        image2 : Blob;
-        image3 : Blob;
+    public type Farmer = {
+        id: Text;
+        name : Text;
+        email : Text;
+        phone : Text;
+        company : Text;
+        location : Text;
+        description : Text;
+        listedProducts : ?[Product];
+        soldProducts : ?[Product];
+        produceCategories : Text;
+        created: ?Int;
+    };
+
+    public type ProductReview = {
+        id: Text;
+        productId : Text;
+        userName : Text;
+        userLastName : Text;
+        rating : Int32;
+        review : Text;
+        created: ?Int;
     };
 }

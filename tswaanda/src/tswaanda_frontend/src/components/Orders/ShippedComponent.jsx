@@ -84,12 +84,12 @@ const ShippedComponent = ({
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
-                {order.orderProducts.map((product) => (
-                  <Grid key={product.id} item xs={4} display="flex" alignItems="center">
+               
+                  <Grid key={order.orderProducts.id} item xs={4} display="flex" alignItems="center">
                     <Box
                       component="img"
                       alt="profile"
-                      src={product.image}
+                      src={order.orderProducts.image}
                       height="100px"
                       width="100px"
                       sx={{ objectFit: "cover" }}
@@ -99,23 +99,23 @@ const ShippedComponent = ({
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Name: {product.name}
+                        Name: {order.orderProducts.name}
                       </Typography>
                       <Typography
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Quantity: {Number(product.quantity)}
+                        Quantity: {Number(order.orderProducts.quantity)}
                       </Typography>
                       <Typography
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Price: ${product.price.toFixed(2)}
+                        Price: ${order.orderProducts.price.toFixed(2)}
                       </Typography>
                     </Box>
                   </Grid>
-                ))}
+               
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
@@ -218,7 +218,30 @@ const ShippedComponent = ({
                 </div>
               )}
               {selectedOrderId === order.orderId && showContact && (
-                <div className="">Contact the customer of the order</div>
+                <AccordionDetails>
+                <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel id="status-label">Order status</InputLabel>
+                    
+                  </FormControl>
+
+                  <Button
+                    variant="contained"
+                    disabled={updating}
+                    color="primary"
+                    onClick={() => updateShippedOrderStatus(order.orderId)}
+                    sx={{
+                      backgroundColor: theme.palette.secondary.light,
+                      color: theme.palette.background.alt,
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      padding: "10px 20px",
+                    }}
+                  >
+                    {updating ? "Updating..." : "Update order"}
+                  </Button>
+                </Container>
+              </AccordionDetails>
               )}
             </Box>
           </AccordionDetails>

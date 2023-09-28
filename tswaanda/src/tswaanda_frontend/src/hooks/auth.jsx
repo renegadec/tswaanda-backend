@@ -4,14 +4,6 @@ import {
   canisterId,
 } from "../../../declarations/tswaanda_frontend/index";
 
-// import { useContext } from "react";
-// import { UserContext } from "../UserContext";
-
-// interface authHandlerProps {
-//     successHandler?: Function;
-//     errorHandler?: Function;
-// }
-
 const idlFactory = ({ IDL }) =>
   IDL.Service({
     whoami: IDL.Func([], [IDL.Principal], []),
@@ -27,18 +19,7 @@ const authClient = await AuthClient.create({
 const useAuth = (session, setSession) => {
   const isLoggedIn = async () => await authClient.isAuthenticated();
 
-  const identity = async () => await authClient.getIdentity();
-
-  const actor = async () => {
-    let identity = authClient.getIdentity();
-    return Actor.createActor(idlFactory, {
-      agent: new HttpAgent({
-        identity,
-        host: "http://localhost:5173",
-      }),
-      canisterId,
-    });
-  };
+  const identity = authClient.getIdentity();
 
   const login = async (successHandler, errorHandler) => {
     const days = BigInt(1);
@@ -68,7 +49,6 @@ const useAuth = (session, setSession) => {
   return {
     isLoggedIn,
     identity,
-    actor,
     login,
     logout,
   };

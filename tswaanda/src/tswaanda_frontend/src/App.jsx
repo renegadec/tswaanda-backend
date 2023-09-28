@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
-import { useSelector } from "react-redux";
 import { themeSettings } from "./theme";
 import {
   BrowserRouter,
@@ -25,36 +24,33 @@ import Admin from "./scenes/admin";
 import Performance from "./scenes/performance";
 import Login from "./scenes/login";
 import { AuthClient } from "@dfinity/auth-client";
-
 import { UserContext } from "./UserContext";
 import { useAuth } from "./hooks";
-import {
-  canisterId,
-  idlFactory,
-} from "../../declarations/tswaanda_backend/index";
 import Wallet from "./scenes/wallet/index";
-import { Actor, HttpAgent } from "@dfinity/agent";
 import Orders from "./scenes/orders/index";
+import { initActors } from "./storage-config/functions";
+import { useSelector, useDispatch } from 'react-redux'
+import { setInit } from "./state/globalSlice";
+import { backendActor } from "./config";
+import Farmers from "./scenes/farmers/index";
+import Storage from "./scenes/storage/index";
+import { initializeRepositoryCanister } from "./hanse/interface";
+import icblast from "@infu/icblast";
+import Documents from "./scenes/documents/index";
 
 function App() {
+  const dispatch = useDispatch()
+  const { storageInitiated } = useSelector((state) => state.global)
+
   const [session, setSession] = useState(null);
-  const { login, isLoggedIn } = useAuth(session, setSession);
+  const { login, isLoggedIn, identity } = useAuth(session, setSession);
   const [authorized, setAuthorized] = useState(null);
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
 
   const getRole = async () => {
     const authClient = await AuthClient.create();
     if (await authClient.isAuthenticated()) {
-      const identity = await authClient.getIdentity();
-      const userPrincipal = identity.getPrincipal().toString();
-      console.log(userPrincipal);
+      const identity = await authClient.getIdentity()
+      console.log("Your principal id:", identity.getPrincipal().toString())
       try {
         const role = await backendActor.my_role(identity.getPrincipal());
         if (role === "unauthorized") {
@@ -84,9 +80,20 @@ function App() {
   useEffect(() => {
     if (session) {
       getRole();
+      initializeRepositoryCanister()
     }
   }, [session]);
 
+  const init = async () => {
+    const res = await initActors();
+    if (res) {
+      dispatch(setInit());
+    }
+  };
+
+  useEffect(() => {
+    init();
+  }, [])
   const ProtectedRoutes = () => {
     if (session && authorized) {
       return <Outlet />;
@@ -106,7 +113,7 @@ function App() {
 
   return (
     <div className="app">
-      <UserContext.Provider value={{ session, setSession }}>
+      <UserContext.Provider value={{ session, setSession, identity }}>
         <BrowserRouter>
           <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -121,16 +128,19 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/customers" element={<Customers />} />
+                  <Route path="/farmers" element={<Farmers />} />
                   <Route path="/transactions" element={<Transactions />} />
                   <Route path="/wallet" element={<Wallet />} />
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/geography" element={<Geography />} />
                   <Route path="/overview" element={<Overview />} />
                   <Route path="/daily" element={<Daily />} />
+                  <Route path="/documents" element={<Documents />} />
                   <Route path="/monthly" element={<Monthly />} />
                   <Route path="/breakdown" element={<Breakdown />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/performance" element={<Performance />} />
+                  <Route path="/storage" element={<Storage />} />
                 </Route>
               </Route>
             </Routes>

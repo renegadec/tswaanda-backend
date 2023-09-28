@@ -34,6 +34,8 @@ npm install
 
 ```bash
 npm install
+
+mops install
 ```
 #### Step 4: Start DFX locally by running the following command
 
@@ -44,6 +46,10 @@ dfx start --clean --background
 #### Step 5: Deploy the canister by running the following command
 
 ```bash
+dfx deploy file_scaling_manager --argument='(false)'
+
+dfx deploy file_storage --argument='(false)'
+
 dfx deploy
 ```
 

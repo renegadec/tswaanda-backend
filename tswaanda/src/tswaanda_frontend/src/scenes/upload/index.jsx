@@ -11,87 +11,104 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { canisterId, idlFactory } from "../../../../declarations/tswaanda_backend/index";
 import { categories } from "../constants/index";
 import { v4 as uuidv4 } from "uuid";
+import { backendActor } from "../../config";
+import { useSelector, useDispatch } from 'react-redux'
+import { uploadFile } from "../../storage-config/functions";
 
 function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
+
+  const { storageInitiated } = useSelector((state) => state.global)
+
   const [minOrder, setMinOrder] = useState(null);
   const [productName, setProductName] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [fullDesc, setFullDesc] = useState("");
-  const [price, setPrice] = useState(null);
+  const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [weight, setWeight] = useState(null);
+  const [weight, setWeight] = useState("");
   const [availability, setAvailability] = useState("");
-  const [mainImage, setMainImage] = useState(null);
-  const [image1, setImage1] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [image3, setImage3] = useState(null);
-  const [uploadingImages, setUploading] = useState(false);
+  const [loadingImages, setloadingImages] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const backendActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
-
-  //   const [dimensions, setDimensions] = useState("");
-  //   const [farmerId, setFarmerId] = useState("");
+  const [uploads, setUploads] = useState([]);
+  const [imgCount, setImgCount] = useState(null)
+  const [uploading, setUpLoading] = useState(false);
 
   const handleImageInputChange = (e) => {
-    setUploading(true);
-    setMainImage(e.target.files[0]);
-    setImage1(e.target.files[1]);
-    setImage2(e.target.files[2]);
-    setImage3(e.target.files[3]);
+    setloadingImages(true);
+    const files = Array.from(e.target.files);
+    const selected = files.slice(0, 4);
+    setImgCount(selected.length)
+    setUploads(selected);
   };
 
   useEffect(() => {
-    if (mainImage && image1 && image2 && image3) {
-      setUploading(false);
+    if (uploads.length >= 4) {
+      setloadingImages(false);
     }
-  }, [mainImage, image1, image2, image3]);
+  }, [uploads]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true);
+    if (uploading || saving) {
+      console.log("Currently busy")
+    } else {
+      try {
+        const urls = await uploadAssets();
+        console.log("Images saved, urls here", urls);
+        setSaving(true);
+        if (urls) {
+          const newProduct = {
+            id: uuidv4(),
+            name: productName,
+            price: parseInt(price),
+            minOrder: parseInt(minOrder),
+            shortDescription: shortDescription,
+            fullDescription: fullDesc,
+            category: category,
+            weight: parseInt(weight),
+            availability: availability,
+            images: urls,
+          };
 
-    const mainImageBytes = [...new Uint8Array(await mainImage.arrayBuffer())];
-    const image1Bytes = [...new Uint8Array(await image1.arrayBuffer())];
-    const image2Bytes = [...new Uint8Array(await image2.arrayBuffer())];
-    const image3Bytes = [...new Uint8Array(await image3.arrayBuffer())];
+          await backendActor.createProduct(newProduct);
+          setProductsUpdated(true);
+          setSaving(false)
+          onClose();
+        }
 
-    const newProduct = {
-      id: uuidv4(),
-      name: productName,
-      price: parseInt(price),
-      image: mainImageBytes,
-      minOrder: parseInt(minOrder),
-      shortDescription: shortDescription,
-      fullDescription: fullDesc,
-      category: category,
-      additionalInformation: {
-        price: parseInt(price),
-        weight: parseInt(weight),
-        availability: availability,
-      },
-      images: {
-        image1: image1Bytes,
-        image2: image2Bytes,
-        image3: image3Bytes,
-      },
-    };
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-    await backendActor.createProduct(newProduct);
-    setProductsUpdated(true);
-    setSaving(false)
-    onClose();
   };
+
+  const uploadAssets = async () => {
+    if (storageInitiated && uploads) {
+      setUpLoading(true);
+      const file_path = location.pathname;
+      const assetsUrls = [];
+
+      for (const image of uploads) {
+        try {
+          const assetUrl = await uploadFile(image, file_path);
+          assetsUrls.push(assetUrl);
+          console.log("This file was successfully uploaded:", image.name);
+          setImgCount(prevCount => prevCount - 1);
+        } catch (error) {
+          console.error("Error uploading file:", image.name, error);
+        }
+      }
+      setUpLoading(false);
+      console.log("Assets urls here", assetsUrls);
+      return assetsUrls;
+    }
+  };
+
+
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <form onSubmit={handleFormSubmit}>
@@ -187,38 +204,18 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
             margin="dense"
             label="Image files"
             type="file"
-            // inputProps={{
-            //   accept: "image/*",
-            // }}
             inputProps={{
               multiple: true,
             }}
             fullWidth
             onChange={handleImageInputChange}
           />
-          {/* <TextField
-            margin="dense"
-            label="Dimensions"
-            type="text"
-            fullWidth
-            value={dimensions}
-            onChange={handleDimensions}
-          /> */}
-          {/* <TextField
-            margin="dense"
-            label="Farmer ID"
-            type="text"
-            fullWidth
-            value={farmerId}
-            onChange={handleFarmerIdChange}
-          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} variant="outlined" color="error">
             Cancel
           </Button>
           <Button
-            disabled={uploadingImages || saving}
             type="submit"
             variant="contained"
             color="success"
@@ -228,7 +225,9 @@ function UpLoadProduct({ isOpen, onClose, setProductsUpdated }) {
               padding: "10px 20px",
             }}
           >
-            Add product
+            {uploading && `Uploading images... ${imgCount}`}
+            {saving && "Saving product..."}
+            {!uploading && !saving && "Add product"}
           </Button>
         </DialogActions>
       </form>

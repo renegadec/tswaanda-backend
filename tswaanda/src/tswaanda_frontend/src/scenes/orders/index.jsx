@@ -1,14 +1,13 @@
 import { Box, useTheme, Tabs, Tab } from "@mui/material";
 import Header from "../../components/Header";
-
 import React, { useEffect, useState } from "react";
-import { idlFactory } from "../../../../declarations/marketplace_backend";
-import { Actor, HttpAgent } from "@dfinity/agent";
 import { toast } from "react-toastify";
 import PendingApprovalComponent from "../../components/Orders/PendingApprovalComponent";
 import ProcessingComponent from "../../components/Orders/ProcessingComponent";
 import ShippedComponent from "../../components/Orders/ShippedComponent";
 import DeliveredComponent from "../../components/Orders/DeliveredComponent";
+import { marketActor } from "../../config";
+import { sendAutomaticOrderUpdateEmail } from "../../emails/orders";
 
 const Orders = () => {
   const theme = useTheme();
@@ -30,16 +29,7 @@ const Orders = () => {
   const [orderStatus, setOrderStatus] = useState("");
   const [orderStep, setOrderStep] = useState(null);
   const [updating, setUpdating] = useState(false);
-
-  const canisterId = "55ger-liaaa-aaaal-qb33q-cai";
-
-  const host = "https://icp0.io";
-  const agent = new HttpAgent({ host: host });
-
-  const marketActor = Actor.createActor(idlFactory, {
-    agent,
-    canisterId: canisterId,
-  });
+  const [updated, setUpdated] = useState(false);
 
   //Setting of the value of the currect tab
   const [value, setValue] = useState(0);
@@ -69,7 +59,6 @@ const Orders = () => {
     setPendingOrders(convertedOrders);
   };
   const getApprovedOrders = async () => {
-    console.log("Getting approved orders fucntion running");
     const res = await marketActor.getApprovedOrders();
     const sortedData = res.sort(
       (a, b) => Number(b.dateCreated) - Number(a.dateCreated)
@@ -102,12 +91,6 @@ const Orders = () => {
       return [];
     }
 
-    const convertImage = (image) => {
-      const imageContent = new Uint8Array(image);
-      const blob = new Blob([imageContent.buffer], { type: "image/png" });
-      return URL.createObjectURL(blob);
-    };
-
     const formatOrderDate = (timestamp) => {
       const date = new Date(Number(timestamp));
       const options = {
@@ -129,11 +112,8 @@ const Orders = () => {
       return date.toLocaleTimeString("en-US", options);
     };
 
-    const ordersWithConvertedImages = data.map((order) => {
-      const orderProducts = order.orderProducts.map((product) => ({
-        ...product,
-        image: convertImage(product.image),
-      }));
+    const modifiedOrder = data.map((order) => {
+
 
       const formattedDate = formatOrderDate(order.dateCreated);
       const formattedTime = formatOrderTime(order.dateCreated);
@@ -142,11 +122,10 @@ const Orders = () => {
         ...order,
         step: Number(order.step),
         dateCreated: `${formattedDate} at ${formattedTime}`,
-        orderProducts: orderProducts,
       };
     });
 
-    return ordersWithConvertedImages;
+    return modifiedOrder;
   }
 
   const updatePendingOrderStatus = async (id) => {
@@ -178,39 +157,46 @@ const Orders = () => {
         } else if (orderStatus === "Delivered") {
           data[orderIndex].step = Number(3);
         }
-        const res = await marketActor.updatePOrder(id, data[orderIndex]);
-        toast.success("Order status have been updated", {
-          autoClose: 5000,
-          position: "top-center",
-          hideProgressBar: true,
-        });
-        const orderPosition = orders.findIndex((order) => order.orderId === id);
-        orders[orderPosition].status = orderStatus;
-        setUpdating(false);
-        setSelectedOrderId(null);
-        if (value === 0) {
-          const filteredOrders = pendingOrders.filter(
-            (order) => order.orderId !== id
-          );
-          setPendingOrders(filteredOrders);
-        } else if (value === 1) {
-          const filteredOrders = approvedOrders.filter(
-            (order) => order.orderId !== id
-          );
-          setApprovedOrders(filteredOrders);
-        } else if (value === 2) {
-          const filteredOrders = shippedOrders.filter(
-            (order) => order.orderId !== id
-          );
-          setShippedOrders(filteredOrders);
-        } else if (value === 3) {
-          const filteredOrders = deliveredOrders.filter(
-            (order) => order.orderId !== id
-          );
-          setDeliverdOrders(filteredOrders);
+        // const res = await marketActor.updatePOrder(id, data[orderIndex]);
+        if (orderStatus !== "Pending Approval") {
+          // await sendAutomaticOrderUpdateEmail(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus);
+          console.log("id", id)
+          console.log(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus, data[orderIndex], data);
+
         }
-        setOrderStatus("");
-        setSelectedOrderId(null);
+        // setUpdated(true);
+        // toast.success(`Order status have been updated${orderStatus !== "pending" ? `. Order update email sent to the customer ${data[orderIndex].userEmail}`: ``}`, {
+        //   autoClose: 5000,
+        //   position: "top-center",
+        //   hideProgressBar: true,
+        // });
+        // const orderPosition = orders.findIndex((order) => order.orderId === id);
+        // orders[orderPosition].status = orderStatus;
+        // setUpdating(false);
+        // setSelectedOrderId(null);
+        // if (value === 0) {
+        //   const filteredOrders = pendingOrders.filter(
+        //     (order) => order.orderId !== id
+        //   );
+        //   setPendingOrders(filteredOrders);
+        // } else if (value === 1) {
+        //   const filteredOrders = approvedOrders.filter(
+        //     (order) => order.orderId !== id
+        //   );
+        //   setApprovedOrders(filteredOrders);
+        // } else if (value === 2) {
+        //   const filteredOrders = shippedOrders.filter(
+        //     (order) => order.orderId !== id
+        //   );
+        //   setShippedOrders(filteredOrders);
+        // } else if (value === 3) {
+        //   const filteredOrders = deliveredOrders.filter(
+        //     (order) => order.orderId !== id
+        //   );
+        //   setDeliverdOrders(filteredOrders);
+        // }
+        // setOrderStatus("");
+        // setSelectedOrderId(null);
       } else {
         toast.warning("Order not found", {
           autoClose: 5000,
@@ -250,6 +236,8 @@ const Orders = () => {
         return (
           <PendingApprovalComponent
             {...{
+              updated,
+              setUpdated,
               pendingOrders,
               handleShowStepForm,
               handleChange,
@@ -272,6 +260,8 @@ const Orders = () => {
         return (
           <ProcessingComponent
             {...{
+              updated,
+              setUpdated,
               approvedOrders,
               handleShowStepForm,
               handleChange,
@@ -294,6 +284,8 @@ const Orders = () => {
         return (
           <ShippedComponent
             {...{
+              updated,
+              setUpdated,
               shippedOrders,
               handleShowStepForm,
               handleChange,
@@ -316,6 +308,8 @@ const Orders = () => {
         return (
           <DeliveredComponent
             {...{
+              updated,
+              setUpdated,
               deliveredOrders,
               handleShowStepForm,
               handleChange,

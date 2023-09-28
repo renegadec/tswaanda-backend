@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Select,
@@ -20,8 +20,12 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import UpdateOrderStatusModal from "./UpdateOrderStatusModal";
+import ContactCustomerOnOrder from "./ContactCustomerOnOrder";
 
 const ProcessingComponent = ({
+  updated,
+  setUpdated,
   approvedOrders,
   handleChange,
   handleShowCustomerForm,
@@ -37,6 +41,28 @@ const ProcessingComponent = ({
   setOrderStep,
   setOrderStatus,
 }) => {
+
+  const [updateSatus, setUpdateStatus] = useState(false)
+  const [contactCustomer, setContactCustomer] = useState(false)
+
+  const [openStatusModal, setStatusModal] = useState(false);
+  const [openContactModal, setContactModal] = useState(false);
+
+  const handleContactCustomer = () => {
+    setContactCustomer(!contactCustomer)
+    setContactModal(true)
+    setUpdateStatus(false)
+  }
+
+  const handleUpdateStatus = () => {
+    setUpdateStatus(!updateSatus)
+    setStatusModal(true)
+    setContactCustomer(false)
+  }
+
+  const updateOrderStatus = (id) => {
+    updateProcessingOrderStatus(id)
+  }
   return (
     <Box m="1rem 0 0 0">
       {approvedOrders?.map((order) => (
@@ -84,12 +110,12 @@ const ProcessingComponent = ({
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
-                {order.orderProducts.map((product) => (
-                  <Grid key={product.id} item xs={4} display="flex" alignItems="center">
+            
+                  <Grid key={order.orderProducts.id} item xs={4} display="flex" alignItems="center">
                     <Box
                       component="img"
                       alt="profile"
-                      src={product.image}
+                      src={order.orderProducts.image}
                       height="100px"
                       width="100px"
                       sx={{ objectFit: "cover" }}
@@ -99,23 +125,23 @@ const ProcessingComponent = ({
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Name: {product.name}
+                        Name: {order.orderProducts.name}
                       </Typography>
                       <Typography
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Quantity: {Number(product.quantity)}
+                        Quantity: {Number(order.orderProducts.quantity)}
                       </Typography>
                       <Typography
                         fontSize="0.9rem"
                         sx={{ color: theme.palette.secondary[100] }}
                       >
-                        Price: ${product.price.toFixed(2)}
+                        Price: ${order.orderProducts.price.toFixed(2)}
                       </Typography>
                     </Box>
                   </Grid>
-                ))}
+                
               </Grid>
               <hr />
               <Grid container spacing={4} m="0 0.1rem 0 0.1rem">
@@ -142,17 +168,17 @@ const ProcessingComponent = ({
               </Grid>
               <hr />
               <CardActions>
-                <Button
-                  onClick={() => handleShowStatusForm(order.orderId)}
+              <Button
+                  onClick={handleUpdateStatus}
                   variant="outlined"
                   size="small"
                   style={{
                     backgroundColor:
-                      selectedOrderId === order.orderId && showStatus
+                      updateSatus
                         ? "white"
                         : undefined,
                     color:
-                      selectedOrderId === order.orderId && showStatus
+                      updateSatus
                         ? "green"
                         : "white",
                   }}
@@ -160,16 +186,16 @@ const ProcessingComponent = ({
                   Update Order status
                 </Button>
                 <Button
-                  onClick={() => handleShowCustomerForm(order.orderId)}
+                  onClick={handleContactCustomer}
                   variant="outlined"
                   size="small"
                   style={{
                     backgroundColor:
-                      selectedOrderId === order.orderId && showContact
+                      contactCustomer
                         ? "white"
                         : undefined,
                     color:
-                      selectedOrderId === order.orderId && showContact
+                      contactCustomer
                         ? "green"
                         : "white",
                   }}
@@ -177,50 +203,12 @@ const ProcessingComponent = ({
                   Contact customer
                 </Button>
               </CardActions>
-              {selectedOrderId === order.orderId && showStatus && (
-                <div className="">
-                  <AccordionDetails>
-                    <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                      <FormControl fullWidth margin="dense">
-                        <InputLabel id="status-label">Order status</InputLabel>
-                        <Select
-                          labelId="status-label"
-                          onChange={(e) => setOrderStatus(e.target.value)}
-                        >
-                          <MenuItem value="Pending Approval">
-                            Pending Approval
-                          </MenuItem>
-                          <MenuItem value="Approved">
-                            Approved-processing
-                          </MenuItem>
-                          <MenuItem value="Shipped">Shipped</MenuItem>
-                          <MenuItem value="Delivered">Delivered</MenuItem>
-                        </Select>
-                      </FormControl>
-
-                      <Button
-                        variant="contained"
-                        disabled={updating}
-                        color="primary"
-                        onClick={() =>
-                          updateProcessingOrderStatus(order.orderId)
-                        }
-                        sx={{
-                          backgroundColor: theme.palette.secondary.light,
-                          color: theme.palette.background.alt,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                        }}
-                      >
-                        {updating ? "Updating..." : "Update order"}
-                      </Button>
-                    </Container>
-                  </AccordionDetails>
-                </div>
+              {updateSatus && (
+                <UpdateOrderStatusModal {...{ updateOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, order, updated,
+                  setUpdated, }} />
               )}
-              {selectedOrderId === order.orderId && showContact && (
-                <div className="">Contact the customer of the order</div>
+              {contactCustomer && (
+               <ContactCustomerOnOrder {...{openContactModal, setContactModal, theme}}/>
               )}
             </Box>
           </AccordionDetails>
