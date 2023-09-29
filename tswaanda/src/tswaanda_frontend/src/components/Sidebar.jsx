@@ -69,16 +69,16 @@ const Sidebar = ({
         </Badge>
       ),
     },
-    // {
-    //   text: "Farmers",
-    //   icon: (
-    //     <Badge
-    //       // badgeContent={newKYC} 
-    //       color="secondary">
-    //       <AgricultureIcon />
-    //     </Badge>
-    //   ),
-    // },
+    {
+      text: "Farmers",
+      icon: (
+        <Badge
+          // badgeContent={newKYC} 
+          color="secondary">
+          <AgricultureIcon />
+        </Badge>
+      ),
+    },
     {
       text: "Transactions",
       icon: <ReceiptLongOutlined />,
