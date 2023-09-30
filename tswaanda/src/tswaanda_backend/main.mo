@@ -201,7 +201,6 @@ shared ({ caller = initializer }) actor class () {
     };
 
 
-
     //----------------------------------------------Farmers implimentation------------------------------------------------
 
     public shared func createFarmer(newFarmer : Farmer) : () {

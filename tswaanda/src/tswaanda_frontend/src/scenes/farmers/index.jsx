@@ -10,9 +10,8 @@ import AddIcon from "@mui/icons-material/Add";
 import Header from "../../components/Header";
 import { toast } from "react-toastify";
 import { canister } from "../../config";
-import Pending from "../../components/Customers/Pending";
-import Approved from "../../components/Customers/Approved";
-import { sendAutomaticEmailMessage } from "../../emails/kycApprovals";
+import PendingFarmers from "../../components/Farmers/PendingFarmers";
+import ApprovedFarmers from "../../components/Farmers/ApprovedFarmers";
 import FarmerListing from "../../scenes/farmerlisting";
 
 const Farmers = () => {
@@ -20,10 +19,10 @@ const Farmers = () => {
   const [showStatus, setShowStatus] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [customers, setCustomers] = useState(null);
+  const [farmers, setFarmers] = useState(null);
   const [data, setData] = useState(null);
-  const [pendingCustomers, setPendingCustomers] = useState(null);
-  const [approvedCustomers, setApprovedCustomers] = useState(null);
+  const [pendingFarmers, setPendingFarmers] = useState(null);
+  const [approvedFarmers, setApprovedFarmers] = useState(null);
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [customerStatus, setCustomerStatus] = useState("");
@@ -55,7 +54,7 @@ const Farmers = () => {
       (a, b) => Number(b.dateCreated) - Number(a.dateCreated)
     );
     const convertedCustomers = convertData(sortedData);
-    setPendingCustomers(convertedCustomers);
+    setPendingFarmers(convertedCustomers);
   }
 
   const getApprovedCustomers = async () => {
@@ -65,7 +64,7 @@ const Farmers = () => {
       (a, b) => Number(b.dateCreated) - Number(a.dateCreated)
     );
     const convertedCustomers = convertData(sortedData);
-    setApprovedCustomers(convertedCustomers);
+    setApprovedFarmers(convertedCustomers);
   }
 
   function convertData(data) {
@@ -131,7 +130,7 @@ const Farmers = () => {
         phoneNumber: Number(customer.phoneNumber),
         dateCreated: formatCustomerDate(customer.dateCreated),
       }));
-      setCustomers(modfifiedCustomers);
+      setFarmers(modfifiedCustomers);
       setIsLoading(false);
     }
   }, [data]);
@@ -142,9 +141,9 @@ const Farmers = () => {
   }, []);
 
   useEffect(() => {
-    if (value === 0 && !pendingCustomers) {
+    if (value === 0 && !pendingFarmers) {
       getPendingCustomers();
-    } else if (value === 1 && !approvedCustomers) {
+    } else if (value === 1 && !approvedFarmers) {
       getApprovedCustomers();
     }
   }, [value]);
@@ -177,10 +176,10 @@ const Farmers = () => {
             hideProgressBar: true,
           }
         );
-        const customerPosition = customers.findIndex(
+        const customerPosition = farmers.findIndex(
           (customer) => customer.id === id
         );
-        customers[customerPosition].status = customerStatus;
+        farmers[customerPosition].status = customerStatus;
         setUpdating(false);
         setSelectedCustomerId(null);
       } else {
@@ -197,9 +196,9 @@ const Farmers = () => {
     switch (value) {
       case 0:
         return (
-          <Pending
+          <PendingFarmers
             {...{
-              pendingCustomers,
+              pendingFarmers,
               updateCustomerStatus,
               handleShowStatusForm,
               setCustomerStatus,
@@ -216,9 +215,9 @@ const Farmers = () => {
         );
       case 1:
         return (
-          <Approved
+          <ApprovedFarmers
             {...{
-              approvedCustomers,
+              approvedFarmers,
               updateCustomerStatus,
               handleShowStatusForm,
               setCustomerStatus,
@@ -268,8 +267,8 @@ const Farmers = () => {
 
         <Box m="2.5rem 0 0 0">
           <Tabs value={value} onChange={handleTabChange}>
-            <Tab label="Pending Approval" />
-            <Tab label="Approved" />
+            <Tab label="PendingFarmers Approval" />
+            <Tab label="ApprovedFarmers" />
             <Tab label="Suspended" />
           </Tabs>
         </Box>
