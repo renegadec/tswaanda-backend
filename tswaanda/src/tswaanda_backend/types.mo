@@ -48,8 +48,8 @@ module {
         productId : Text;
         userName : Text;
         userLastName : Text;
-        rating : Int32;
+        rating : Int;
         review : Text;
-        created: ?Int;
+        created: Int;
     };
 }
