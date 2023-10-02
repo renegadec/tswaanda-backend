@@ -21,6 +21,7 @@ const Customers = () => {
   const [data, setData] = useState(null);
   const [pendingCustomers, setPendingCustomers] = useState(null);
   const [approvedCustomers, setApprovedCustomers] = useState(null);
+  const [updated, setUpdated] = useState(false);
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [customerStatus, setCustomerStatus] = useState("");
@@ -154,6 +155,7 @@ const Customers = () => {
         if (customerStatus === "approved") {
           await sendAutomaticEmailMessage(data[customerIndex].firstName, data[customerIndex].email)
         }
+        setUpdated(true);
         toast.success(
           `Customer status have been updated to ${customerStatus} ${customerStatus === "approved" ? ", Approval email have been sent" : ""} `,
           {
@@ -184,6 +186,8 @@ const Customers = () => {
         return (
           <Pending
             {...{
+              updated,
+              setUpdated,
               pendingCustomers,
               updateCustomerStatus,
               handleShowStatusForm,
@@ -195,7 +199,6 @@ const Customers = () => {
               selectedCustomerId,
               customerStatus,
               handleChange,
-
             }}
           />
         );
@@ -203,6 +206,8 @@ const Customers = () => {
         return (
           <Approved
             {...{
+              updated,
+              setUpdated,
               approvedCustomers,
               updateCustomerStatus,
               handleShowStatusForm,

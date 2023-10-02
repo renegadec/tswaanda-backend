@@ -16,20 +16,19 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ContactCustomerForm from './ContactCustomerForm';
 import IdentficationDoc from './IdentficationDoc';
 import ProofOfAddress from './ProofOfAddress';
-import ContactCustomerForm from './ContactCustomerForm';
+import UpdateCustomerStatusForm from './UpdateCustomerStatusForm';
 
 const Approved = ({
     approvedCustomers,
     updateCustomerStatus,
     setCustomerStatus,
     expanded,
-    showStatus,
     updating,
-    selectedCustomerId,
-    handleChange
-}) => {
+    handleChange, setUpdated,
+    updated, }) => {
 
     const theme = useTheme();
 
@@ -41,14 +40,22 @@ const Approved = ({
     const [openPOAModal, setPOAModal] = useState(false);
     const [openIDModal, setIDModal] = useState(false);
 
-    const showContactForm = () => {
+    const [openStatusModal, setStatusModal] = useState(false);
+    const [openContactModal, setContactModal] = useState(false);
+
+    const [customer, setCustomer] = useState({});
+
+    const showContactForm = (customer) => {
+        setCustomer(customer);
         setShowContactForm(!showContact);
+        setContactModal(true)
         setShowStatusForm(false);
         setShowIdentification(false);
         setShowProofOfAddress(false);
     }
 
-    const showIdentificationDoc = () => {
+    const showIdentificationDoc = (customer) => {
+        setCustomer(customer);
         setShowIdentification(!showIdentification);
         setIDModal(!openIDModal)
         setShowStatusForm(false);
@@ -56,7 +63,8 @@ const Approved = ({
         setShowProofOfAddress(false);
     }
 
-    const showProofOfAddressDoc = () => {
+    const showProofOfAddressDoc = (customer) => {
+        setCustomer(customer);
         setShowProofOfAddress(!showProofOfAddress);
         setPOAModal(!openPOAModal)
         setShowStatusForm(false);
@@ -64,7 +72,9 @@ const Approved = ({
         setShowIdentification(false);
     }
 
-    const handleShowStatusForm = () => {
+    const handleShowStatusForm = (customer) => {
+        setCustomer(customer);
+        setStatusModal(true)
         setShowStatusForm(!showStatusForm);
         setShowContactForm(false);
         setShowIdentification(false);
@@ -194,16 +204,18 @@ const Approved = ({
                                 <hr />
                                 <CardActions>
                                     <Button
-                                        onClick={() => handleShowStatusForm(customer.id)}
+                                        onClick={
+                                            () => handleShowStatusForm(customer)
+                                        }
                                         variant="outlined"
                                         size="small"
                                         style={{
                                             backgroundColor:
-                                                selectedCustomerId === customer.id && showStatus
+                                                showStatusForm
                                                     ? "white"
                                                     : undefined,
                                             color:
-                                                selectedCustomerId === customer.id && showStatus
+                                                showStatusForm
                                                     ? "green"
                                                     : "white",
                                         }}
@@ -211,7 +223,9 @@ const Approved = ({
                                         Update Customer status
                                     </Button>
                                     <Button
-                                        onClick={showContactForm}
+                                        onClick={
+                                            () => showContactForm(customer)
+                                        }
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -228,7 +242,9 @@ const Approved = ({
                                         Contact customer
                                     </Button>
                                     <Button
-                                        onClick={showIdentificationDoc}
+                                        onClick={
+                                            () => showIdentificationDoc(customer)
+                                        }
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -245,7 +261,9 @@ const Approved = ({
                                         View Identification
                                     </Button>
                                     <Button
-                                        onClick={showProofOfAddressDoc}
+                                        onClick={
+                                            () => showProofOfAddressDoc(customer)
+                                        }
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -261,60 +279,34 @@ const Approved = ({
                                     >
                                         View Proof of Address
                                     </Button>
+
                                 </CardActions>
                             </Container>
 
-                            {showStatusForm && (
-                                <div className="">
-                                    <AccordionDetails>
-                                        <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                                            <FormControl fullWidth margin="dense">
-                                                <InputLabel id="status-label">
-                                                    Customer status
-                                                </InputLabel>
-                                                <Select
-                                                    labelId="status-label"
-                                                    onChange={(e) => setCustomerStatus(e.target.value)}
-                                                >
-                                                    <MenuItem value="pending">
-                                                        Pending Approval
-                                                    </MenuItem>
-                                                    <MenuItem value="approved">Approved</MenuItem>
-                                                </Select>
-                                            </FormControl>
 
-                                            <Button
-                                                variant="contained"
-                                                disabled={updating}
-                                                color="primary"
-                                                onClick={() => updateCustomerStatus(customer.id)}
-                                                sx={{
-                                                    backgroundColor: theme.palette.secondary.light,
-                                                    color: theme.palette.background.alt,
-                                                    fontSize: "14px",
-                                                    fontWeight: "bold",
-                                                    padding: "10px 20px",
-                                                }}
-                                            >
-                                                {updating ? "Updating..." : "Update customer"}
-                                            </Button>
-                                        </Container>
-                                    </AccordionDetails>
-                                </div>
-                            )}
-                            {showContact && (
-                                <ContactCustomerForm {...{ customer, setShowContactForm, theme }} />
-                            )}
-                            {showIdentification && (
-                                <IdentficationDoc {...{ setIDModal, openIDModal, showIdentificationDoc, customer }} />
-                            )}
-                            {showProofOfAddress && (
-                                <ProofOfAddress {...{ openPOAModal, setPOAModal, showProofOfAddressDoc, customer }} />
-                            )}
+
                         </Box>
                     </AccordionDetails>
                 </Accordion>
             ))}
+            <>
+
+                {showStatusForm && (
+                    <UpdateCustomerStatusForm {...{
+                        setUpdated,
+                        updated, openStatusModal, setStatusModal, customer, setShowStatusForm, theme, updateCustomerStatus, setCustomerStatus, updating
+                    }} />
+                )}
+                {showContact && (
+                    <ContactCustomerForm {...{ openContactModal, setContactModal, customer, setShowContactForm, theme }} />
+                )}
+                {showIdentification && (
+                    <IdentficationDoc {...{ setIDModal, openIDModal, showIdentificationDoc, customer }} />
+                )}
+                {showProofOfAddress && (
+                    <ProofOfAddress {...{ openPOAModal, setPOAModal, showProofOfAddressDoc, customer }} />
+                )}
+            </>
         </Box>
     )
 }
