@@ -13,6 +13,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { sendCustomerEmailMessageOnOrder } from '../../emails/orders';
+import { toast } from 'react-toastify';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -23,7 +24,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-const ContactCustomerOnOrder = ({ openContactModal, setContactModal, theme }) => {
+const ContactCustomerOnOrder = ({ openContactModal, setContactModal, theme, modalOrder }) => {
 
     const handleContactModalClose = () => {
         setContactModal(false);
@@ -36,31 +37,32 @@ const ContactCustomerOnOrder = ({ openContactModal, setContactModal, theme }) =>
         e.preventDefault()
         setSending(true)
         console.log("sending")
-        try {
-            if (message !== "") {
-                await sendCustomerEmailMessageOnOrder(message, customer.email)
-                toast.success(
-                    `Message sent to ${customer.email} `,
-                    {
-                        autoClose: 5000,
-                        position: "top-center",
-                        hideProgressBar: true,
-                    }
-                );
-                setSending(false)
-            }
-        } catch (error) {
-            console.log("Error sending email", error)
-            toast.error(
-                `Error sending message to ${customer.email} `,
-                {
-                    autoClose: 5000,
-                    position: "top-center",
-                    hideProgressBar: true,
-                }
-            );
-            setSending(false)
-        }
+        console.log(modalOrder)
+        // try {
+        //     if (message !== "") {
+        //         await sendCustomerEmailMessageOnOrder(message, modalOrder.email)
+        //         toast.success(
+        //             `Message sent to ${modalOrder.email} `,
+        //             {
+        //                 autoClose: 5000,
+        //                 position: "top-center",
+        //                 hideProgressBar: true,
+        //             }
+        //         );
+        //         setSending(false)
+        //     }
+        // } catch (error) {
+        //     console.log("Error sending email", error)
+        //     toast.error(
+        //         `Error sending message to ${modalOrder.email} `,
+        //         {
+        //             autoClose: 5000,
+        //             position: "top-center",
+        //             hideProgressBar: true,
+        //         }
+        //     );
+        //     setSending(false)
+        // }
     }
 
     return (
@@ -97,7 +99,7 @@ const ContactCustomerOnOrder = ({ openContactModal, setContactModal, theme }) =>
                                         color: "white",
                                     }}
                                 >
-                                    Is there a problem with the customer KYC? Let them know.
+                                    Update the modalOrder about their order
                                 </DialogTitle>
                                 <DialogContent>
                                     <TextField

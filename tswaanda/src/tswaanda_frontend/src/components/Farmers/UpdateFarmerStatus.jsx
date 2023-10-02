@@ -24,15 +24,20 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusModal, setOrderStatus, updating, theme, modalOrder, updated,
-    setUpdated }) => {
+const UpdateFarmerStatus = ({
+    farmer,
+    theme,
+    openStatusModal,
+    setStatusModal,
+    updateFarmerStatus,
+    setFarmerStatus,
+    updating,
+    updated,
+    setUpdated
+}) => {
 
     const handleStatusModalClose = () => {
         setStatusModal(false);
-    }
-
-    const handleUpdateOrderStatus = async () => {
-        updateOrderStatus(modalOrder.orderId)
     }
 
     useEffect(() => {
@@ -42,7 +47,6 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
         }
     }, [updated])
 
-
     return (
         <div>
             <BootstrapDialog
@@ -51,7 +55,7 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                 open={openStatusModal}
             >
                 <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.background.alt }} id="customized-dialog-title">
-                    Update Order Status
+                    Update Farmer Status
                 </DialogTitle>
                 <IconButton
                     aria-label="close"
@@ -71,19 +75,18 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                         <AccordionDetails>
                             <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
                                 <FormControl fullWidth margin="dense">
-                                    <InputLabel id="status-label">Order status</InputLabel>
+                                    <InputLabel id="status-label">
+                                        Farmer status
+                                    </InputLabel>
                                     <Select
                                         labelId="status-label"
-                                        onChange={(e) => setOrderStatus(e.target.value)}
+                                        onChange={(e) => setFarmerStatus(e.target.value)}
                                     >
                                         <MenuItem value="pending">
                                             Pending Approval
                                         </MenuItem>
-                                        <MenuItem value="approved">
-                                            Approved-processing
-                                        </MenuItem>
-                                        <MenuItem value="shipped">Shipped</MenuItem>
-                                        <MenuItem value="delivered">Delivered</MenuItem>
+                                        <MenuItem value="approved">Approved</MenuItem>
+                                        <MenuItem value="suspended">Suspended</MenuItem>
                                     </Select>
                                 </FormControl>
 
@@ -91,7 +94,7 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                                     variant="contained"
                                     disabled={updating}
                                     color="primary"
-                                    onClick={handleUpdateOrderStatus}
+                                    onClick={() => updateFarmerStatus(farmer.id)}
                                     sx={{
                                         backgroundColor: theme.palette.secondary.light,
                                         color: theme.palette.background.alt,
@@ -100,7 +103,7 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                                         padding: "10px 20px",
                                     }}
                                 >
-                                    {updating ? "Updating..." : "Update Order"}
+                                    {updating ? "Updating..." : "Update farmer"}
                                 </Button>
                             </Container>
                         </AccordionDetails>
@@ -112,4 +115,4 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
     )
 }
 
-export default UpdateOrderStatusModal
+export default UpdateFarmerStatus

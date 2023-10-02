@@ -14,14 +14,11 @@ import {
 import { categories } from "../constants/index";
 import { v4 as uuidv4 } from "uuid";
 import { backendActor } from "../../config";
-import { useSelector, useDispatch } from 'react-redux'
-import { uploadFile } from "../../storage-config/functions";
+import { toast } from "react-toastify";
 
-function FarmerListing({ isOpen, onClose, setProductsUpdated }) {
+function FarmerListing({ isOpen, onClose }) {
 
-  const { storageInitiated } = useSelector((state) => state.global)
 
-  const [minOrder, setMinOrder] = useState(null);
   const [farmerName, setFarmerName] = useState("");
   const [farmerEmail, setFarmerEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -29,84 +26,43 @@ function FarmerListing({ isOpen, onClose, setProductsUpdated }) {
   const [farmLocation, setFarmLocation] = useState("");
   const [farmDescription, setFarmDescription] = useState("");
   const [produceCategory, setProduceCategory] = useState("");
-  const [farmerStatus, setFarmerStatus] = useState(false);
 
   const [saving, setSaving] = useState(false);
 
-  const [uploads, setUploads] = useState([]);
-  const [imgCount, setImgCount] = useState(null)
-  const [uploading, setUpLoading] = useState(false);
-
-  const handleImageInputChange = (e) => {
-    setloadingImages(true);
-    const files = Array.from(e.target.files);
-    const selected = files.slice(0, 4);
-    setImgCount(selected.length)
-    setUploads(selected);
-  };
-
-  useEffect(() => {
-    if (uploads.length >= 4) {
-      setloadingImages(false);
-    }
-  }, [uploads]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    if (uploading || saving) {
-      console.log("Currently busy")
-    } else {
-      try {
-        const urls = await uploadAssets();
-        console.log("Images saved, urls here", urls);
-        setSaving(true);
-        if (urls) {
-          const newProduct = {
-            id: uuidv4(),
-            name: productName,
-            price: parseInt(price),
-            minOrder: parseInt(minOrder),
-            shortDescription: shortDescription,
-            fullDescription: fullDesc,
-            category: category,
-            weight: parseInt(weight),
-            availability: availability,
-            images: urls,
-          };
+    try {
+      setSaving(true);
+      const farmer = {
+        id: uuidv4(),
+        fullName: farmerName,
+        email: farmerEmail,
+        phone: phoneNumber,
+        farmName,
+        location: farmLocation,
+        description: farmDescription,
+        produceCategories: produceCategory,
+        listedProducts: [], 
+        soldProducts: [],
+        isSuspended: false,
+        isVerified: false,
+        created: BigInt(Date.now()),
+      };
+      console.log(farmer)
+      await backendActor.createFarmer(farmer);
+      toast.success("Farmer added successfully", {
+        autoClose: 5000,
+        position: "top-center",
+        hideProgressBar: true,
+      });
+      setSaving(false);
 
-          await backendActor.createProduct(newProduct);
-          setProductsUpdated(true);
-          setSaving(false)
-          onClose();
-        }
-
-      } catch (error) {
-        console.log(error);
-      }
+    } catch (error) {
+      console.log(error);
+      setSaving(false);
     }
 
-  };
-
-  const uploadAssets = async () => {
-    if (storageInitiated && uploads) {
-      setUpLoading(true);
-      const file_path = location.pathname;
-      const assetsUrls = [];
-
-      for (const image of uploads) {
-        try {
-          const assetUrl = await uploadFile(image, file_path);
-          assetsUrls.push(assetUrl);
-          console.log("This file was successfully uploaded:", image.name);
-          setImgCount(prevCount => prevCount - 1);
-        } catch (error) {
-          console.error("Error uploading file:", image.name, error);
-        }
-      }
-      setUpLoading(false);
-      console.log("Assets urls here", assetsUrls);
-      return assetsUrls;
-    }
   };
 
 
@@ -173,7 +129,7 @@ function FarmerListing({ isOpen, onClose, setProductsUpdated }) {
             value={farmDescription}
             onChange={(e) => setFarmDescription(e.target.value)}
           />
-          
+
           <FormControl fullWidth margin="dense">
             <InputLabel id="category-label">Produce Category</InputLabel>
             <Select
@@ -188,19 +144,7 @@ function FarmerListing({ isOpen, onClose, setProductsUpdated }) {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="availability-label">Status</InputLabel>
-            <Select
-              labelId="availability-label"
-              value={farmerStatus}
-              onChange={(e) => setFarmerStatus(e.target.value)}
-            >
-              <MenuItem value="Available">Verified</MenuItem>
-              <MenuItem value="Out of stock">Unverified</MenuItem>
-              <MenuItem value="Suspended">Suspended</MenuItem>
-            </Select>
-          </FormControl>
-          
+
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} variant="outlined" color="error">
@@ -216,9 +160,8 @@ function FarmerListing({ isOpen, onClose, setProductsUpdated }) {
               padding: "10px 20px",
             }}
           >
-            {uploading && `Uploading images... ${imgCount}`}
-            {saving && "Saving product..."}
-            {!uploading && !saving && "Add Farmer"}
+            {saving && "Saving info..."}
+            {!saving && "Add Farmer"}
           </Button>
         </DialogActions>
       </form>

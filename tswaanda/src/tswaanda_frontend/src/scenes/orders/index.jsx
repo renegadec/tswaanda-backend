@@ -148,55 +148,55 @@ const Orders = () => {
 
       if (orderIndex !== -1) {
         data[orderIndex].status = orderStatus;
-        if (orderStatus === "Pending Approval") {
+        if (orderStatus === "pending") {
           data[orderIndex].step = Number(0);
-        } else if (orderStatus === "Approved") {
+        } else if (orderStatus === "approved") {
           data[orderIndex].step = Number(1);
-        } else if (orderStatus === "Shipped") {
+        } else if (orderStatus === "shipped") {
           data[orderIndex].step = Number(2);
-        } else if (orderStatus === "Delivered") {
+        } else if (orderStatus === "delivered") {
           data[orderIndex].step = Number(3);
         }
-        // const res = await marketActor.updatePOrder(id, data[orderIndex]);
-        if (orderStatus !== "Pending Approval") {
-          // await sendAutomaticOrderUpdateEmail(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus);
+        const res = await marketActor.updatePOrder(id, data[orderIndex]);
+        if (orderStatus !== "pending") {
+          await sendAutomaticOrderUpdateEmail(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus);
           console.log("id", id)
           console.log(data[orderIndex].fistName, data[orderIndex].userEmail, orderStatus, data[orderIndex], data);
 
         }
-        // setUpdated(true);
-        // toast.success(`Order status have been updated${orderStatus !== "pending" ? `. Order update email sent to the customer ${data[orderIndex].userEmail}`: ``}`, {
-        //   autoClose: 5000,
-        //   position: "top-center",
-        //   hideProgressBar: true,
-        // });
-        // const orderPosition = orders.findIndex((order) => order.orderId === id);
-        // orders[orderPosition].status = orderStatus;
-        // setUpdating(false);
-        // setSelectedOrderId(null);
-        // if (value === 0) {
-        //   const filteredOrders = pendingOrders.filter(
-        //     (order) => order.orderId !== id
-        //   );
-        //   setPendingOrders(filteredOrders);
-        // } else if (value === 1) {
-        //   const filteredOrders = approvedOrders.filter(
-        //     (order) => order.orderId !== id
-        //   );
-        //   setApprovedOrders(filteredOrders);
-        // } else if (value === 2) {
-        //   const filteredOrders = shippedOrders.filter(
-        //     (order) => order.orderId !== id
-        //   );
-        //   setShippedOrders(filteredOrders);
-        // } else if (value === 3) {
-        //   const filteredOrders = deliveredOrders.filter(
-        //     (order) => order.orderId !== id
-        //   );
-        //   setDeliverdOrders(filteredOrders);
-        // }
-        // setOrderStatus("");
-        // setSelectedOrderId(null);
+        setUpdated(true);
+        toast.success(`Order status have been updated${orderStatus !== "pending" ? `. Order update email sent to the customer ${data[orderIndex].userEmail}`: ``}`, {
+          autoClose: 5000,
+          position: "top-center",
+          hideProgressBar: true,
+        });
+        const orderPosition = orders.findIndex((order) => order.orderId === id);
+        orders[orderPosition].status = orderStatus;
+        setUpdating(false);
+        setSelectedOrderId(null);
+        if (value === 0) {
+          const filteredOrders = pendingOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setPendingOrders(filteredOrders);
+        } else if (value === 1) {
+          const filteredOrders = approvedOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setApprovedOrders(filteredOrders);
+        } else if (value === 2) {
+          const filteredOrders = shippedOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setShippedOrders(filteredOrders);
+        } else if (value === 3) {
+          const filteredOrders = deliveredOrders.filter(
+            (order) => order.orderId !== id
+          );
+          setDeliverdOrders(filteredOrders);
+        }
+        setOrderStatus("");
+        setSelectedOrderId(null);
       } else {
         toast.warning("Order not found", {
           autoClose: 5000,
@@ -343,8 +343,8 @@ const Orders = () => {
           <Tabs value={value} onChange={handleTabChange}>
             <Tab label="Pending Approval" />
             <Tab label="Processing" />
-            <Tab label="Shipped" />
-            <Tab label="Delivered" />
+            <Tab label="shipped" />
+            <Tab label="delivered" />
           </Tabs>
         </Box>
         {renderTabContent()}

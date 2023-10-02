@@ -37,13 +37,17 @@ const PendingApprovalComponent = ({
   const [openStatusModal, setStatusModal] = useState(false);
   const [openContactModal, setContactModal] = useState(false);
 
-  const handleContactCustomer = () => {
+  const [modalOrder, setOrder] = useState({})
+
+  const handleContactCustomer = (order) => {
+    setOrder(order)
     setContactCustomer(!contactCustomer)
     setContactModal(true)
     setUpdateStatus(false)
   }
 
-  const handleUpdateStatus = () => {
+  const handleUpdateStatus = (order) => {
+    setOrder(order)
     setUpdateStatus(!updateSatus)
     setStatusModal(true)
     setContactCustomer(false)
@@ -56,8 +60,6 @@ const PendingApprovalComponent = ({
   useEffect(() => {
     setOrders(pendingOrders)
   }, [pendingOrders])
-
-  console.log(orders)
 
 
   return (
@@ -166,7 +168,7 @@ const PendingApprovalComponent = ({
               <hr />
               <CardActions>
                 <Button
-                  onClick={handleUpdateStatus}
+                  onClick={() => handleUpdateStatus(order)}
                   variant="outlined"
                   size="small"
                   style={{
@@ -183,7 +185,7 @@ const PendingApprovalComponent = ({
                   Update Order status
                 </Button>
                 <Button
-                  onClick={handleContactCustomer}
+                  onClick={() => handleContactCustomer(order)}
                   variant="outlined"
                   size="small"
                   style={{
@@ -200,17 +202,22 @@ const PendingApprovalComponent = ({
                   Contact customer
                 </Button>
               </CardActions>
-              {updateSatus && (
-                <UpdateOrderStatusModal {...{ updateOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, order, updated,
-                  setUpdated }} />
-              )}
-              {contactCustomer && (
-               <ContactCustomerOnOrder {...{openContactModal, setContactModal, theme}}/>
-              )}
+
             </Box>
           </AccordionDetails>
         </Accordion>
       ))}
+      <>
+        {updateSatus && (
+          <UpdateOrderStatusModal {...{
+            updateOrderStatus, setOrderStatus, updating, theme, setStatusModal, openStatusModal, modalOrder, updated,
+            setUpdated
+          }} />
+        )}
+        {contactCustomer && (
+          <ContactCustomerOnOrder {...{ openContactModal, setContactModal, theme, modalOrder }} />
+        )}
+      </>
     </Box>
   );
 };

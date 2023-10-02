@@ -13,37 +13,39 @@ export const sendAutomaticOrderUpdateEmail = async (
     status
 ) => {
 
-    function getStatusMessage(status) {
-        if (status === "approved") {
-            return updatedToApproved
-        } else if (status === "shipped") {
-            return updatedToShipped;
-        } else if (status === "delivered") {
-            return updatedToDelivered;
-        }
-    }
-    const templateParams = {
-        to_name: name,
-        to_user_email: email,
-        message: getStatusMessage(status),
-    };
+    console.log(name, email, status)
 
-    emailjs
-        .send(
-            "service_515ffkj",
-            "template_wcm2cyn",
-            templateParams,
-            "ni25KjXycoHjn-cD1"
-        )
-        .then(
-            (result) => {
-                console.log("SUCCESS!", result.status, result.text);
-                console.log("message was sent");
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+    // function getStatusMessage(status) {
+    //     if (status === "approved") {
+    //         return updatedToApproved
+    //     } else if (status === "shipped") {
+    //         return updatedToShipped;
+    //     } else if (status === "delivered") {
+    //         return updatedToDelivered;
+    //     }
+    // }
+    // const templateParams = {
+    //     to_name: name,
+    //     to_user_email: email,
+    //     message: getStatusMessage(status),
+    // };
+
+    // emailjs
+    //     .send(
+    //         "service_515ffkj",
+    //         "template_wcm2cyn",
+    //         templateParams,
+    //         "ni25KjXycoHjn-cD1"
+    //     )
+    //     .then(
+    //         (result) => {
+    //             console.log("SUCCESS!", result.status, result.text);
+    //             console.log("message was sent");
+    //         },
+    //         (error) => {
+    //             console.log(error);
+    //         }
+    //     );
 };
 
 // TODO: CHANGE THE EMAIL TEMPLATE

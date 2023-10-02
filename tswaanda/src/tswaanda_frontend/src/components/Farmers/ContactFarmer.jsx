@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import AccordionDetails from "@mui/material/AccordionDetails";
-import { sendCustomerEmailMessage } from '../../emails/kycApprovals';
+import { sendFarmerEmailMessage } from '../../emails/farmers';
 import { toast } from "react-toastify";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -25,19 +25,26 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 
-const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactModal, setContactModal }) => {
+
+const ContactFarmer = ({ farmer, setShowContactForm, theme, openContactModal, setContactModal }) => {
 
     const [sending, setSending] = useState(false)
     const [message, setMessage] = useState("")
 
+
+    const handleContactModalClose = () => {
+        setContactModal(false);
+    }
+
     const handleEmailSend = async (e) => {
         e.preventDefault()
         setSending(true)
+        console.log("sending")
         // try {
         //     if (message !== "") {
-        //         await sendCustomerEmailMessage(message, customer.email)
+        //         await sendFarmerEmailMessage(message, farmer.email)
         //         toast.success(
-        //             `Message sent to ${customer.email} `,
+        //             `Message sent to ${farmer.email} `,
         //             {
         //                 autoClose: 5000,
         //                 position: "top-center",
@@ -49,7 +56,7 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
         // } catch (error) {
         //     console.log("Error sending email", error)
         //     toast.error(
-        //         `Error sending message to ${customer.email} `,
+        //         `Error sending message to ${farmer.email} `,
         //         {
         //             autoClose: 5000,
         //             position: "top-center",
@@ -60,11 +67,6 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
         // }
     }
 
-
-    const handleContactModalClose = () => {
-        setContactModal(false);
-    }
-
     return (
         <div>
             <BootstrapDialog
@@ -73,7 +75,7 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
                 open={openContactModal}
             >
                 <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.background.alt }} id="customized-dialog-title">
-                    Contact Customer
+                    Contact Farmer
                 </DialogTitle>
                 <IconButton
                     aria-label="close"
@@ -100,7 +102,7 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
                                             color: "white",
                                         }}
                                     >
-                                        Is there a problem with the customer KYC? Let them know.
+                                        Send Message to {farmer.email}
                                     </DialogTitle>
                                     <DialogContent>
                                         <TextField
@@ -153,4 +155,4 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
     )
 }
 
-export default ContactCustomerForm
+export default ContactFarmer

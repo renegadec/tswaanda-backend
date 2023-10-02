@@ -16,7 +16,7 @@ module {
     };
 
     public type Product = {
-        id: Text;
+        id : Text;
         name : Text;
         price : Int32;
         minOrder : Int32;
@@ -30,26 +30,28 @@ module {
     };
 
     public type Farmer = {
-        id: Text;
-        name : Text;
+        id : Text;
+        fullName : Text;
         email : Text;
         phone : Text;
-        company : Text;
+        farmName : Text;
         location : Text;
         description : Text;
         listedProducts : ?[Product];
         soldProducts : ?[Product];
         produceCategories : Text;
-        created: ?Int;
+        isVerified : Bool;
+        isSuspended : Bool;
+        created : Int;
     };
 
     public type ProductReview = {
-        id: Text;
+        id : Text;
         productId : Text;
         userName : Text;
         userLastName : Text;
-        rating : Int32;
+        rating : Int;
         review : Text;
-        created: ?Int;
+        created : Int;
     };
-}
+};
