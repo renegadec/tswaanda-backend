@@ -1,10 +1,6 @@
 import React, { useState } from 'react'
 import {
     Box,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
     Container,
     Typography,
     useTheme,
@@ -18,6 +14,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContactFarmer from './ContactFarmer';
 import UpdateFarmer from '../../scenes/updateFarmer/index';
+import UpdateFarmerStatus from './UpdateFarmerStatus';
 
 const PendingFarmers = ({
     pendingFarmers,
@@ -27,7 +24,9 @@ const PendingFarmers = ({
     showStatus,
     updating,
     selectedFarmerId,
-    handleChange
+    handleChange,
+    updated,
+    setUpdated
 }) => {
 
     const theme = useTheme();
@@ -37,19 +36,25 @@ const PendingFarmers = ({
     const [isOpen, setIsOpen] = useState(false);
     const [farmer, setFarmer] = useState(null);
 
-    const handleListPopClose = () => {
+    const [openStatusModal, setStatusModal] = useState(false);
+    const [openContactModal, setContactModal] = useState(false);
+
+    const onClose = () => {
         setIsOpen(false);
     };
 
     const showContactForm = (farmer) => {
         setFarmer(farmer);
         setShowContactForm(!showContact);
+        setContactModal(true);
         setShowStatusForm(false);
         setIsOpen(false);
     }
 
-    const handleShowStatusForm = () => {
+    const handleShowStatusForm = (farmer) => {
+        setFarmer(farmer);
         setShowStatusForm(!showStatusForm);
+        setStatusModal(true);
         setShowContactForm(false);
         setIsOpen(false);
     }
@@ -168,7 +173,7 @@ const PendingFarmers = ({
                                 <hr />
                                 <CardActions>
                                     <Button
-                                        onClick={() => handleShowStatusForm(farmer.id)}
+                                        onClick={() => handleShowStatusForm(farmer)}
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -221,57 +226,33 @@ const PendingFarmers = ({
                                 </CardActions>
                             </Container>
 
-                            {showStatusForm && (
-                                <div className="">
-                                    <AccordionDetails>
-                                        <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                                            <FormControl fullWidth margin="dense">
-                                                <InputLabel id="status-label">
-                                                    Farmer status
-                                                </InputLabel>
-                                                <Select
-                                                    labelId="status-label"
-                                                    onChange={(e) => setFarmerStatus(e.target.value)}
-                                                >
-                                                    <MenuItem value="pending">
-                                                        Pending Approval
-                                                    </MenuItem>
-                                                    <MenuItem value="approved">Approved</MenuItem>
-                                                </Select>
-                                            </FormControl>
-
-                                            <Button
-                                                variant="contained"
-                                                disabled={updating}
-                                                color="primary"
-                                                onClick={() => updateFarmerStatus(farmer.id)}
-                                                sx={{
-                                                    backgroundColor: theme.palette.secondary.light,
-                                                    color: theme.palette.background.alt,
-                                                    fontSize: "14px",
-                                                    fontWeight: "bold",
-                                                    padding: "10px 20px",
-                                                }}
-                                            >
-                                                {updating ? "Updating..." : "Update Farmer"}
-                                            </Button>
-                                        </Container>
-                                    </AccordionDetails>
-                                </div>
-                            )}
-
+                           
                         </Box>
                     </AccordionDetails>
                 </Accordion>
             ))}
             <>
                 {showContact && (
-                    <ContactFarmer {...{ farmer, setShowContactForm, theme }} />
+                    <ContactFarmer {...{ farmer, setShowContactForm, theme, openContactModal, setContactModal }} />
                 )}
+                 {showStatusForm && (
+                           <UpdateFarmerStatus {...{
+                                farmer,
+                                theme,
+                                openStatusModal,
+                                setStatusModal,
+                                updateFarmerStatus,
+                                setFarmerStatus,
+                                updating,
+                                updated,
+                                setUpdated,
+                            }}/>
+                            )}
+
                 {isOpen && <UpdateFarmer
-                    farmer={farmer}
-                    isOpen={isOpen}
-                    onClose={handleListPopClose} />}
+                    {...{
+                        farmer, isOpen, onClose
+                    }} />}
             </>
         </Box>
     )

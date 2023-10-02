@@ -1,10 +1,6 @@
 import React, { useState } from 'react'
 import {
     Box,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
     Container,
     Typography,
     useTheme,
@@ -17,38 +13,66 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContactFarmer from './ContactFarmer';
+import UpdateFarmer from '../../scenes/updateFarmer/index';
+import UpdateFarmerStatus from './UpdateFarmerStatus';
 
 const SuspendedFarmers = ({
-    pendingCustomers,
-    updateCustomerStatus,
-    setCustomerStatus,
+    suspendedFarmers,
+    updateFarmerStatus,
+    setFarmerStatus,
     expanded,
+    showStatus,
     updating,
-    handleChange }) => {
+    selectedFarmerId,
+    handleChange,
+    updated,
+    setUpdated
+}) => {
 
     const theme = useTheme();
 
     const [showContact, setShowContactForm] = useState(false);
     const [showStatusForm, setShowStatusForm] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [farmer, setFarmer] = useState(null);
 
-    const showContactForm = () => {
+    const [openStatusModal, setStatusModal] = useState(false);
+    const [openContactModal, setContactModal] = useState(false);
+
+    const onClose = () => {
+        setIsOpen(false);
+    };
+
+    const showContactForm = (farmer) => {
+        setFarmer(farmer);
         setShowContactForm(!showContact);
+        setContactModal(true);
         setShowStatusForm(false);
-
+        setIsOpen(false);
     }
 
-    const handleShowStatusForm = () => {
+    const handleShowStatusForm = (farmer) => {
+        setFarmer(farmer);
         setShowStatusForm(!showStatusForm);
+        setStatusModal(true);
+        setShowContactForm(false);
+        setIsOpen(false);
+    }
+
+    const showUpdateForm = (farmer) => {
+        setFarmer(farmer);
+        setIsOpen(!isOpen);
+        setShowStatusForm(false);
         setShowContactForm(false);
     }
 
     return (
         <Box m="1rem 0 0 0">
-            {pendingCustomers?.map((customer) => (
+            {suspendedFarmers?.map((farmer) => (
                 <Accordion
-                    key={customer.id}
-                    expanded={expanded === customer.id}
-                    onChange={handleChange(customer.id)}
+                    key={farmer.id}
+                    expanded={expanded === farmer.id}
+                    onChange={handleChange(farmer.id)}
                     sx={{ backgroundColor: theme.palette.background.alt }}
                 >
                     <AccordionSummary
@@ -57,22 +81,22 @@ const SuspendedFarmers = ({
                         id="panel1bh-header"
                     >
                         <Typography sx={{ width: "25%", flexShrink: 0 }}>
-                            <span style={{ fontWeight: "bold" }}>Username</span>: @
-                            {customer.userName}
+                            <span style={{ fontWeight: "bold" }}>Username</span>:
+                            {farmer.fullName}
                         </Typography>
                         <Typography
                             sx={{ color: "text.secondary", width: "25%", flexShrink: 0 }}
                         >
                             <span style={{ fontWeight: "bold" }}>Email</span>:{" "}
-                            {customer.email}
+                            {farmer.email}
                         </Typography>
                         <Typography sx={{ color: "text.secondary", width: "25%" }}>
                             <span style={{ fontWeight: "bold" }}>Status</span>:{" "}
-                            {customer.status}
+                            {farmer.isVerified ? "Approved" : "Pending"}
                         </Typography>
                         <Typography sx={{ color: "text.secondary", width: "25%" }}>
                             <span style={{ fontWeight: "bold" }}>Date</span>:{" "}
-                            {customer.dateCreated}
+                            {farmer.created}
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -92,30 +116,14 @@ const SuspendedFarmers = ({
                                 >
                                     <Grid
                                         style={{ display: "flex", alignItems: "center" }}
-                                        customer
+                                        farmer
                                         xs={6}
                                     >
                                         <Typography
                                             style={{ fontSize: "2rem", fontWeight: "bold" }}
                                         >
-                                            {customer.firstName}
+                                            {farmer.fullName}
                                         </Typography>
-                                        <Typography
-                                            style={{ fontSize: "2rem", fontWeight: "bold" }}
-                                            m="0 0 0 2rem"
-                                        >
-                                            {customer.lastName}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid customer xs={6}>
-                                        <Box
-                                            component="img"
-                                            alt="profile"
-                                            src={customer.profilePhoto}
-                                            height="200px"
-                                            width="200px"
-                                            sx={{ objectFit: "cover" }}
-                                        />
                                     </Grid>
                                 </Grid>
                                 <hr />
@@ -125,7 +133,7 @@ const SuspendedFarmers = ({
                                 >
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>Username</span>:
-                                        {customer.userName}
+                                        {farmer.fullName}
                                     </Typography>
                                     <Typography
                                         sx={{
@@ -134,7 +142,7 @@ const SuspendedFarmers = ({
                                         }}
                                     >
                                         <span style={{ fontWeight: "bold" }}>Phone Number</span>:{" "}
-                                        {customer.phoneNumber}
+                                        {farmer.phone}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionSummary>
@@ -144,37 +152,37 @@ const SuspendedFarmers = ({
                                             flexShrink: 0,
                                         }}
                                     >
-                                        <span style={{ fontWeight: "bold" }}>Country</span>:{" "}
-                                        {customer.country}
+                                        <span style={{ fontWeight: "bold" }}>Location</span>:{" "}
+                                        {farmer.location}
                                     </Typography>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
-                                        <span style={{ fontWeight: "bold" }}>Organization</span>:
-                                        {customer.organization}
+                                        <span style={{ fontWeight: "bold" }}>Farm</span>:
+                                        {farmer.farmName}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionSummary>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>About</span>:{" "}
-                                        {customer.about}
+                                        {farmer.description}
                                     </Typography>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>Address</span>:{" "}
-                                        {customer.streetAdrees}
+                                        {farmer.streetAdrees}
                                     </Typography>
                                 </AccordionSummary>
                                 <hr />
                                 <CardActions>
                                     <Button
-                                        onClick={handleShowStatusForm}
+                                        onClick={() => handleShowStatusForm(farmer)}
                                         variant="outlined"
                                         size="small"
                                         style={{
                                             backgroundColor:
-                                                showStatusForm
+                                                selectedFarmerId === farmer.id && showStatus
                                                     ? "white"
                                                     : undefined,
                                             color:
-                                                showStatusForm
+                                                selectedFarmerId === farmer.id && showStatus
                                                     ? "green"
                                                     : "white",
                                         }}
@@ -182,7 +190,7 @@ const SuspendedFarmers = ({
                                         Update Farmer status
                                     </Button>
                                     <Button
-                                        onClick={showContactForm}
+                                        onClick={() => showContactForm(farmer)}
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -198,56 +206,54 @@ const SuspendedFarmers = ({
                                     >
                                         Contact Farmer
                                     </Button>
-
+                                    <Button
+                                        onClick={() => showUpdateForm(farmer)}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                isOpen
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                isOpen
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        Update information
+                                    </Button>
                                 </CardActions>
                             </Container>
 
-                            {showStatusForm && (
-                                <div className="">
-                                    <AccordionDetails>
-                                        <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
-                                            <FormControl fullWidth margin="dense">
-                                                <InputLabel id="status-label">
-                                                    Customer status
-                                                </InputLabel>
-                                                <Select
-                                                    labelId="status-label"
-                                                    onChange={(e) => setCustomerStatus(e.target.value)}
-                                                >
-                                                    <MenuItem value="pending">
-                                                        SuspendedFarmers Approval
-                                                    </MenuItem>
-                                                    <MenuItem value="approved">Approved</MenuItem>
-                                                </Select>
-                                            </FormControl>
-
-                                            <Button
-                                                variant="contained"
-                                                disabled={updating}
-                                                color="primary"
-                                                onClick={() => updateCustomerStatus(customer.id)}
-                                                sx={{
-                                                    backgroundColor: theme.palette.secondary.light,
-                                                    color: theme.palette.background.alt,
-                                                    fontSize: "14px",
-                                                    fontWeight: "bold",
-                                                    padding: "10px 20px",
-                                                }}
-                                            >
-                                                {updating ? "Updating..." : "Update customer"}
-                                            </Button>
-                                        </Container>
-                                    </AccordionDetails>
-                                </div>
-                            )}
-                            {showContact && (
-                                <ContactFarmer {...{ customer, setShowContactForm, theme }} />
-                            )}
-
+                           
                         </Box>
                     </AccordionDetails>
                 </Accordion>
             ))}
+            <>
+                {showContact && (
+                    <ContactFarmer {...{ farmer, setShowContactForm, theme, openContactModal, setContactModal }} />
+                )}
+                 {showStatusForm && (
+                           <UpdateFarmerStatus {...{
+                                farmer,
+                                theme,
+                                openStatusModal,
+                                setStatusModal,
+                                updateFarmerStatus,
+                                setFarmerStatus,
+                                updating,
+                                updated,
+                                setUpdated,
+                            }}/>
+                            )}
+
+                {isOpen && <UpdateFarmer
+                    {...{
+                        farmer, isOpen, onClose
+                    }} />}
+            </>
         </Box>
     )
 }

@@ -33,31 +33,31 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
     const handleEmailSend = async (e) => {
         e.preventDefault()
         setSending(true)
-        try {
-            if (message !== "") {
-                await sendCustomerEmailMessage(message, customer.email)
-                toast.success(
-                    `Message sent to ${customer.email} `,
-                    {
-                        autoClose: 5000,
-                        position: "top-center",
-                        hideProgressBar: true,
-                    }
-                );
-                setSending(false)
-            }
-        } catch (error) {
-            console.log("Error sending email", error)
-            toast.error(
-                `Error sending message to ${customer.email} `,
-                {
-                    autoClose: 5000,
-                    position: "top-center",
-                    hideProgressBar: true,
-                }
-            );
-            setSending(false)
-        }
+        // try {
+        //     if (message !== "") {
+        //         await sendCustomerEmailMessage(message, customer.email)
+        //         toast.success(
+        //             `Message sent to ${customer.email} `,
+        //             {
+        //                 autoClose: 5000,
+        //                 position: "top-center",
+        //                 hideProgressBar: true,
+        //             }
+        //         );
+        //         setSending(false)
+        //     }
+        // } catch (error) {
+        //     console.log("Error sending email", error)
+        //     toast.error(
+        //         `Error sending message to ${customer.email} `,
+        //         {
+        //             autoClose: 5000,
+        //             position: "top-center",
+        //             hideProgressBar: true,
+        //         }
+        //     );
+        //     setSending(false)
+        // }
     }
 
 
@@ -73,7 +73,7 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme, openContactM
                 open={openContactModal}
             >
                 <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.background.alt }} id="customized-dialog-title">
-                    Update Order Status
+                    Contact Customer
                 </DialogTitle>
                 <IconButton
                     aria-label="close"

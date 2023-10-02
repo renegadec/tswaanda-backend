@@ -26,11 +26,13 @@ const Farmers = () => {
   const [approvedFarmers, setApprovedFarmers] = useState(null);
   const [suspendedFarmers, setSuspendedFarmers] = useState(null);
 
-  const [selectedFarmerId, setSelectedCustomerId] = useState(null);
+  const [selectedFarmerId, setSelectedFarmerId] = useState(null);
   const [farmerStatus, setFarmerStatus] = useState("");
   const [value, setValue] = useState(0);
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const [updated, setUpdated] = useState(false);
 
   const handleListButton = () => {
     setIsOpen(true);
@@ -158,27 +160,33 @@ const Farmers = () => {
   }, [value]);
 
   const handleShowStatusForm = (id) => {
-    setSelectedCustomerId(id);
+    setSelectedFarmerId(id);
     setShowStatus(true);
   };
 
   const updateFarmerStatus = async (id) => {
     if (data && farmerStatus != "") {
       setUpdating(true);
-      const customerIndex = data.findIndex((farmer) => farmer.id === id);
+      const farmerIndex = data.findIndex((farmer) => farmer.id === id);
 
-      if (customerIndex !== -1) {
-        data[customerIndex].status = farmerStatus;
-        let userId = data[customerIndex].userId;
-        const res = await backendActor.updateKYCRequest(
-          userId,
-          data[customerIndex]
-        );
+      if (farmerIndex !== -1) {
         if (farmerStatus === "approved") {
-          await sendAutomaticEmailMessage(data[customerIndex].firstName, data[customerIndex].email)
+          data[farmerIndex].isVerified = true;
         }
+        if (farmerStatus === "suspended") {
+          data[farmerIndex].isSuspended = true;
+          
+        }
+        if (farmerStatus === "pending") {
+          data[farmerIndex].isVerified = false;
+          data[farmerIndex].isSuspended = false;
+        }
+        const res = await backendActor.updateFarmer(
+          data[farmerIndex]
+        );
+        setUpdated(true);
         toast.success(
-          `Customer status have been updated to ${farmerStatus} ${farmerStatus === "approved" ? ", Approval email have been sent" : ""} `,
+          `Farmer status have been updated`,
           {
             autoClose: 5000,
             position: "top-center",
@@ -190,7 +198,7 @@ const Farmers = () => {
         );
         farmers[customerPosition].status = farmerStatus;
         setUpdating(false);
-        setSelectedCustomerId(null);
+        setSelectedFarmerId(null);
       } else {
         toast.warning("Customer not found", {
           autoClose: 5000,
@@ -207,6 +215,8 @@ const Farmers = () => {
         return (
           <PendingFarmers
             {...{
+              updated,
+              setUpdated,
               pendingFarmers,
               updateFarmerStatus,
               handleShowStatusForm,
@@ -226,6 +236,8 @@ const Farmers = () => {
         return (
           <ApprovedFarmers
             {...{
+              updated,
+              setUpdated,
               approvedFarmers,
               updateFarmerStatus,
               handleShowStatusForm,
@@ -245,6 +257,8 @@ const Farmers = () => {
         return (
           <SuspendedFarmers
             {...{
+              updated,
+              setUpdated,
               suspendedFarmers,
               updateFarmerStatus,
               handleShowStatusForm,
