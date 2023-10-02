@@ -238,17 +238,47 @@ shared ({ caller = initializer }) actor class () {
         farmers.delete(email);
     };
 
+    public shared query func getVerifiedFarmers() : async [Farmer] {
+        let verifiedFarmers = Buffer.Buffer<Farmer>(0);
+        for (farmer in farmers.vals()) {
+            if (farmer.isVerified == true) {
+                verifiedFarmers.add(farmer);
+            };
+        };
+        return Buffer.toArray<Farmer>(verifiedFarmers);
+    };
+
+    public shared query func getUnverifiedFarmers() : async [Farmer] {
+        let unverifiedFarmers = Buffer.Buffer<Farmer>(0);
+        for (farmer in farmers.vals()) {
+            if (farmer.isVerified == false) {
+                unverifiedFarmers.add(farmer);
+            };
+        };
+        return Buffer.toArray<Farmer>(unverifiedFarmers);
+    };
+
+    public shared query func getSuspendedFarmers() : async [Farmer] {
+        let suspendedFarmers = Buffer.Buffer<Farmer>(0);
+        for (farmer in farmers.vals()) {
+            if (farmer.isSuspended == true) {
+                suspendedFarmers.add(farmer);
+            };
+        };
+        return Buffer.toArray<Farmer>(suspendedFarmers);
+    };
+
     //----------------------------------------------Upgrade methods--------------------------------------------------------
 
     system func preupgrade() {
         productsEntries := Iter.toArray(products.entries());
         farmersEntries := Iter.toArray(farmers.entries());
-        // productReviewsEntries := Iter.toArray(productReviews.entries());
+        productReviewsEntries := Iter.toArray(productReviews.entries());
     };
 
     system func postupgrade() {
         products := HashMap.fromIter<Text, Product>(productsEntries.vals(), 0, Text.equal, Text.hash);
         farmers := HashMap.fromIter<Text, Farmer>(farmersEntries.vals(), 0, Text.equal, Text.hash);
-        // productReviews := HashMap.fromIter<Text, List.List<ProductReview>>(productReviewsEntries.vals(), 0, Text.equal, Text.hash);
+        productReviews := HashMap.fromIter<Text, List.List<ProductReview>>(productReviewsEntries.vals(), 0, Text.equal, Text.hash);
     };
 };

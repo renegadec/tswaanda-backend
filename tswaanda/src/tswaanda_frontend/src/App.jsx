@@ -61,7 +61,7 @@ function App() {
         console.log("User role: ", role);
       } catch (error) {
         setAuthorized(false);
-        console.log(error);
+        console.log("Error on checking authorization", error);
       }
     }
   };

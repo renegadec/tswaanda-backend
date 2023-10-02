@@ -17,38 +17,57 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContactFarmer from './ContactFarmer';
+import UpdateFarmer from '../../scenes/updateFarmer/index';
 
 const PendingFarmers = ({
-    pendingCustomers,
-    updateCustomerStatus,
-    setCustomerStatus,
+    pendingFarmers,
+    updateFarmerStatus,
+    setFarmerStatus,
     expanded,
+    showStatus,
     updating,
-    handleChange }) => {
+    selectedFarmerId,
+    handleChange
+}) => {
 
     const theme = useTheme();
 
     const [showContact, setShowContactForm] = useState(false);
     const [showStatusForm, setShowStatusForm] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [farmer, setFarmer] = useState(null);
 
-    const showContactForm = () => {
+    const handleListPopClose = () => {
+        setIsOpen(false);
+    };
+
+    const showContactForm = (farmer) => {
+        setFarmer(farmer);
         setShowContactForm(!showContact);
         setShowStatusForm(false);
-
+        setIsOpen(false);
     }
 
     const handleShowStatusForm = () => {
         setShowStatusForm(!showStatusForm);
         setShowContactForm(false);
+        setIsOpen(false);
+    }
+
+    const showUpdateForm = (farmer) => {
+        setFarmer(farmer);
+        setIsOpen(!isOpen);
+        setShowStatusForm(false);
+        setShowContactForm(false);
     }
 
     return (
         <Box m="1rem 0 0 0">
-            {pendingCustomers?.map((customer) => (
+            {pendingFarmers?.map((farmer) => (
                 <Accordion
-                    key={customer.id}
-                    expanded={expanded === customer.id}
-                    onChange={handleChange(customer.id)}
+                    key={farmer.id}
+                    expanded={expanded === farmer.id}
+                    onChange={handleChange(farmer.id)}
                     sx={{ backgroundColor: theme.palette.background.alt }}
                 >
                     <AccordionSummary
@@ -57,22 +76,22 @@ const PendingFarmers = ({
                         id="panel1bh-header"
                     >
                         <Typography sx={{ width: "25%", flexShrink: 0 }}>
-                            <span style={{ fontWeight: "bold" }}>Username</span>: @
-                            {customer.userName}
+                            <span style={{ fontWeight: "bold" }}>Username</span>:
+                            {farmer.fullName}
                         </Typography>
                         <Typography
                             sx={{ color: "text.secondary", width: "25%", flexShrink: 0 }}
                         >
                             <span style={{ fontWeight: "bold" }}>Email</span>:{" "}
-                            {customer.email}
+                            {farmer.email}
                         </Typography>
                         <Typography sx={{ color: "text.secondary", width: "25%" }}>
                             <span style={{ fontWeight: "bold" }}>Status</span>:{" "}
-                            {customer.status}
+                            {farmer.isVerified ? "Approved" : "Pending"}
                         </Typography>
                         <Typography sx={{ color: "text.secondary", width: "25%" }}>
                             <span style={{ fontWeight: "bold" }}>Date</span>:{" "}
-                            {customer.dateCreated}
+                            {farmer.created}
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -92,30 +111,14 @@ const PendingFarmers = ({
                                 >
                                     <Grid
                                         style={{ display: "flex", alignItems: "center" }}
-                                        customer
+                                        farmer
                                         xs={6}
                                     >
                                         <Typography
                                             style={{ fontSize: "2rem", fontWeight: "bold" }}
                                         >
-                                            {customer.firstName}
+                                            {farmer.fullName}
                                         </Typography>
-                                        <Typography
-                                            style={{ fontSize: "2rem", fontWeight: "bold" }}
-                                            m="0 0 0 2rem"
-                                        >
-                                            {customer.lastName}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid customer xs={6}>
-                                        <Box
-                                            component="img"
-                                            alt="profile"
-                                            src={customer.profilePhoto}
-                                            height="200px"
-                                            width="200px"
-                                            sx={{ objectFit: "cover" }}
-                                        />
                                     </Grid>
                                 </Grid>
                                 <hr />
@@ -125,7 +128,7 @@ const PendingFarmers = ({
                                 >
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>Username</span>:
-                                        {customer.userName}
+                                        {farmer.fullName}
                                     </Typography>
                                     <Typography
                                         sx={{
@@ -134,7 +137,7 @@ const PendingFarmers = ({
                                         }}
                                     >
                                         <span style={{ fontWeight: "bold" }}>Phone Number</span>:{" "}
-                                        {customer.phoneNumber}
+                                        {farmer.phone}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionSummary>
@@ -144,37 +147,37 @@ const PendingFarmers = ({
                                             flexShrink: 0,
                                         }}
                                     >
-                                        <span style={{ fontWeight: "bold" }}>Country</span>:{" "}
-                                        {customer.country}
+                                        <span style={{ fontWeight: "bold" }}>Location</span>:{" "}
+                                        {farmer.location}
                                     </Typography>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
-                                        <span style={{ fontWeight: "bold" }}>Organization</span>:
-                                        {customer.organization}
+                                        <span style={{ fontWeight: "bold" }}>Farm</span>:
+                                        {farmer.farmName}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionSummary>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>About</span>:{" "}
-                                        {customer.about}
+                                        {farmer.description}
                                     </Typography>
                                     <Typography sx={{ width: "50%", flexShrink: 0 }}>
                                         <span style={{ fontWeight: "bold" }}>Address</span>:{" "}
-                                        {customer.streetAdrees}
+                                        {farmer.streetAdrees}
                                     </Typography>
                                 </AccordionSummary>
                                 <hr />
                                 <CardActions>
                                     <Button
-                                        onClick={handleShowStatusForm}
+                                        onClick={() => handleShowStatusForm(farmer.id)}
                                         variant="outlined"
                                         size="small"
                                         style={{
                                             backgroundColor:
-                                                showStatusForm
+                                                selectedFarmerId === farmer.id && showStatus
                                                     ? "white"
                                                     : undefined,
                                             color:
-                                                showStatusForm
+                                                selectedFarmerId === farmer.id && showStatus
                                                     ? "green"
                                                     : "white",
                                         }}
@@ -182,7 +185,7 @@ const PendingFarmers = ({
                                         Update Farmer status
                                     </Button>
                                     <Button
-                                        onClick={showContactForm}
+                                        onClick={() => showContactForm(farmer)}
                                         variant="outlined"
                                         size="small"
                                         style={{
@@ -198,7 +201,23 @@ const PendingFarmers = ({
                                     >
                                         Contact Farmer
                                     </Button>
-
+                                    <Button
+                                        onClick={() => showUpdateForm(farmer)}
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                            backgroundColor:
+                                                isOpen
+                                                    ? "white"
+                                                    : undefined,
+                                            color:
+                                                isOpen
+                                                    ? "green"
+                                                    : "white",
+                                        }}
+                                    >
+                                        Update information
+                                    </Button>
                                 </CardActions>
                             </Container>
 
@@ -208,14 +227,14 @@ const PendingFarmers = ({
                                         <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
                                             <FormControl fullWidth margin="dense">
                                                 <InputLabel id="status-label">
-                                                    Customer status
+                                                    Farmer status
                                                 </InputLabel>
                                                 <Select
                                                     labelId="status-label"
-                                                    onChange={(e) => setCustomerStatus(e.target.value)}
+                                                    onChange={(e) => setFarmerStatus(e.target.value)}
                                                 >
                                                     <MenuItem value="pending">
-                                                        PendingFarmers Approval
+                                                        Pending Approval
                                                     </MenuItem>
                                                     <MenuItem value="approved">Approved</MenuItem>
                                                 </Select>
@@ -225,7 +244,7 @@ const PendingFarmers = ({
                                                 variant="contained"
                                                 disabled={updating}
                                                 color="primary"
-                                                onClick={() => updateCustomerStatus(customer.id)}
+                                                onClick={() => updateFarmerStatus(farmer.id)}
                                                 sx={{
                                                     backgroundColor: theme.palette.secondary.light,
                                                     color: theme.palette.background.alt,
@@ -234,20 +253,26 @@ const PendingFarmers = ({
                                                     padding: "10px 20px",
                                                 }}
                                             >
-                                                {updating ? "Updating..." : "Update customer"}
+                                                {updating ? "Updating..." : "Update Farmer"}
                                             </Button>
                                         </Container>
                                     </AccordionDetails>
                                 </div>
                             )}
-                            {showContact && (
-                               <ContactFarmer {...{customer, setShowContactForm, theme}}/>
-                            )}
-                            
+
                         </Box>
                     </AccordionDetails>
                 </Accordion>
             ))}
+            <>
+                {showContact && (
+                    <ContactFarmer {...{ farmer, setShowContactForm, theme }} />
+                )}
+                {isOpen && <UpdateFarmer
+                    farmer={farmer}
+                    isOpen={isOpen}
+                    onClose={handleListPopClose} />}
+            </>
         </Box>
     )
 }

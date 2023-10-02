@@ -241,9 +241,9 @@ const SuspendedFarmers = ({
                                 </div>
                             )}
                             {showContact && (
-                               <ContactFarmer {...{customer, setShowContactForm, theme}}/>
+                                <ContactFarmer {...{ customer, setShowContactForm, theme }} />
                             )}
-                            
+
                         </Box>
                     </AccordionDetails>
                 </Accordion>

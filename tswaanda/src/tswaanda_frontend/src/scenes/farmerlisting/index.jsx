@@ -45,6 +45,8 @@ function FarmerListing({ isOpen, onClose }) {
         produceCategories: produceCategory,
         listedProducts: [], 
         soldProducts: [],
+        isSuspended: false,
+        isVerified: false,
         created: BigInt(Date.now()),
       };
       console.log(farmer)

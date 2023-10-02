@@ -35,7 +35,7 @@ const useAuth = (session, setSession) => {
         setSession(false);
       },
       identityProvider: "https://identity.ic0.app/#authorize",
-      // `http://localhost:${process.env.REPLICA_PORT}?canisterId=${process.env.INTERNET_IDENTITY_CANISTER_ID}#authorize`,
+      // identityProvider: "http://localhost:4943?canisterId=b77ix-eeaaa-aaaaa-qaada-cai",
       // Maximum authorization expiration is 8 days
       maxTimeToLive: days * hours * nanoseconds,
     });

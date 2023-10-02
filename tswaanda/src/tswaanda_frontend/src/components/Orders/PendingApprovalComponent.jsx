@@ -57,8 +57,6 @@ const PendingApprovalComponent = ({
     setOrders(pendingOrders)
   }, [pendingOrders])
 
-  console.log(orders)
-
 
   return (
     <Box m="1rem 0 0 0">

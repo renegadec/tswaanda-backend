@@ -12,7 +12,7 @@ import { sendFarmerEmailMessage } from '../../emails/farmers';
 import { toast } from "react-toastify";
 
 
-const ContactFarmer = ({ customer, setShowContactForm, theme }) => {
+const ContactFarmer = ({ farmer, setShowContactForm, theme }) => {
 
     const [sending, setSending] = useState(false)
     const [message, setMessage] = useState("")
@@ -23,9 +23,9 @@ const ContactFarmer = ({ customer, setShowContactForm, theme }) => {
         console.log("sending")
         try {
             if (message !== "") {
-                await sendFarmerEmailMessage(message, customer.email)
+                await sendFarmerEmailMessage(message, farmer.email)
                 toast.success(
-                    `Message sent to ${customer.email} `,
+                    `Message sent to ${farmer.email} `,
                     {
                         autoClose: 5000,
                         position: "top-center",
@@ -37,7 +37,7 @@ const ContactFarmer = ({ customer, setShowContactForm, theme }) => {
         } catch (error) {
             console.log("Error sending email", error)
             toast.error(
-                `Error sending message to ${customer.email} `,
+                `Error sending message to ${farmer.email} `,
                 {
                     autoClose: 5000,
                     position: "top-center",
@@ -60,7 +60,7 @@ const ContactFarmer = ({ customer, setShowContactForm, theme }) => {
                                 color: "white",
                             }}
                         >
-                            Is there a problem with the customer KYC? Let them know.
+                            Send Message to {farmer.email}
                         </DialogTitle>
                         <DialogContent>
                             <TextField

@@ -40,6 +40,8 @@ module {
         listedProducts : ?[Product];
         soldProducts : ?[Product];
         produceCategories : Text;
+        isVerified : Bool;
+        isSuspended : Bool;
         created : Int;
     };
 

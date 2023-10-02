@@ -9,10 +9,11 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import Header from "../../components/Header";
 import { toast } from "react-toastify";
-import { canister } from "../../config";
 import PendingFarmers from "../../components/Farmers/PendingFarmers";
 import ApprovedFarmers from "../../components/Farmers/ApprovedFarmers";
 import FarmerListing from "../../scenes/farmerlisting";
+import SuspendedFarmers from "../../components/Farmers/SuspendedFarmers";
+import { backendActor } from "../../config";
 
 const Farmers = () => {
   const [expanded, setExpanded] = useState(false);
@@ -23,9 +24,10 @@ const Farmers = () => {
   const [data, setData] = useState(null);
   const [pendingFarmers, setPendingFarmers] = useState(null);
   const [approvedFarmers, setApprovedFarmers] = useState(null);
+  const [suspendedFarmers, setSuspendedFarmers] = useState(null);
 
-  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-  const [customerStatus, setCustomerStatus] = useState("");
+  const [selectedFarmerId, setSelectedCustomerId] = useState(null);
+  const [farmerStatus, setFarmerStatus] = useState("");
   const [value, setValue] = useState(0);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -48,26 +50,33 @@ const Farmers = () => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const getPendingCustomers = async () => {
-    const res = await canister.getPendingKYCReaquest()
+  const getPendingFarmers = async () => {
+    const res = await backendActor.getUnverifiedFarmers()
     const sortedData = res.sort(
-      (a, b) => Number(b.dateCreated) - Number(a.dateCreated)
+      (a, b) => Number(b.created) - Number(a.created)
     );
-    const convertedCustomers = convertData(sortedData);
-    setPendingFarmers(convertedCustomers);
+    const convertedFarmers = convertData(sortedData);
+    setPendingFarmers(convertedFarmers);
+  }
+  const getSuspended = async () => {
+    const res = await backendActor.getSuspendedFarmers()
+    const sortedData = res.sort(
+      (a, b) => Number(b.created) - Number(a.created)
+    );
+    const convertedFarmers = convertData(sortedData);
+    setSuspendedFarmers(convertedFarmers);
   }
 
-  const getApprovedCustomers = async () => {
-    console.log(canister)
-    const res = await canister.getApprovedKYC()
+  const getApprovedFarmers = async () => {
+    const res = await backendActor.getVerifiedFarmers()
     const sortedData = res.sort(
-      (a, b) => Number(b.dateCreated) - Number(a.dateCreated)
+      (a, b) => Number(b.created) - Number(a.created)
     );
-    const convertedCustomers = convertData(sortedData);
-    setApprovedFarmers(convertedCustomers);
+    const convertedFarmers = convertData(sortedData);
+    setApprovedFarmers(convertedFarmers);
   }
 
-  function convertData(data) {
+  const convertData = (data) => {
     if (!data) {
       return [];
     }
@@ -93,16 +102,16 @@ const Farmers = () => {
       return date.toLocaleTimeString("en-US", options);
     };
 
-    const modifiedOrder = data.map((customer) => {
+    const modifiedOrder = data.map((farmer) => {
 
 
-      const formattedDate = formatCustomerDate(customer.dateCreated);
-      const formattedTime = formatCustomerTime(customer.dateCreated);
+      const formattedDate = formatCustomerDate(farmer.created);
+      const formattedTime = formatCustomerTime(farmer.created);
 
       return {
-        ...customer,
-        step: Number(customer.step),
-        dateCreated: `${formattedDate} at ${formattedTime}`,
+        ...farmer,
+        step: Number(farmer.step),
+        created: `${formattedDate} at ${formattedTime}`,
       };
     });
 
@@ -111,7 +120,7 @@ const Farmers = () => {
 
   const getCustomers = async () => {
     setIsLoading(true);
-    const res = await canister.getAllKYC();
+    const res = await backendActor.getAllFarmers();
     setData(res);
   };
 
@@ -123,12 +132,10 @@ const Farmers = () => {
         return date.toLocaleDateString();
       };
 
-      const modfifiedCustomers = data.map((customer) => ({
-        ...customer,
-        userId: customer.userId.toString(),
-        zipCode: Number(customer.zipCode),
-        phoneNumber: Number(customer.phoneNumber),
-        dateCreated: formatCustomerDate(customer.dateCreated),
+      const modfifiedCustomers = data.map((farmer) => ({
+        ...farmer,
+        phone: Number(farmer.phone),
+        created: formatCustomerDate(farmer.created),
       }));
       setFarmers(modfifiedCustomers);
       setIsLoading(false);
@@ -137,14 +144,16 @@ const Farmers = () => {
 
   useEffect(() => {
     getCustomers();
-    getPendingCustomers();
+    getPendingFarmers();
   }, []);
 
   useEffect(() => {
     if (value === 0 && !pendingFarmers) {
-      getPendingCustomers();
+      getPendingFarmers();
     } else if (value === 1 && !approvedFarmers) {
-      getApprovedCustomers();
+      getApprovedFarmers();
+    } else if (value === 2 && !suspendedFarmers) {
+      getSuspended();
     }
   }, [value]);
 
@@ -153,23 +162,23 @@ const Farmers = () => {
     setShowStatus(true);
   };
 
-  const updateCustomerStatus = async (id) => {
-    if (data && customerStatus != "") {
+  const updateFarmerStatus = async (id) => {
+    if (data && farmerStatus != "") {
       setUpdating(true);
-      const customerIndex = data.findIndex((customer) => customer.id === id);
+      const customerIndex = data.findIndex((farmer) => farmer.id === id);
 
       if (customerIndex !== -1) {
-        data[customerIndex].status = customerStatus;
+        data[customerIndex].status = farmerStatus;
         let userId = data[customerIndex].userId;
-        const res = await canister.updateKYCRequest(
+        const res = await backendActor.updateKYCRequest(
           userId,
           data[customerIndex]
         );
-        if (customerStatus === "approved") {
+        if (farmerStatus === "approved") {
           await sendAutomaticEmailMessage(data[customerIndex].firstName, data[customerIndex].email)
         }
         toast.success(
-          `Customer status have been updated to ${customerStatus} ${customerStatus === "approved" ? ", Approval email have been sent" : ""} `,
+          `Customer status have been updated to ${farmerStatus} ${farmerStatus === "approved" ? ", Approval email have been sent" : ""} `,
           {
             autoClose: 5000,
             position: "top-center",
@@ -177,9 +186,9 @@ const Farmers = () => {
           }
         );
         const customerPosition = farmers.findIndex(
-          (customer) => customer.id === id
+          (farmer) => farmer.id === id
         );
-        farmers[customerPosition].status = customerStatus;
+        farmers[customerPosition].status = farmerStatus;
         setUpdating(false);
         setSelectedCustomerId(null);
       } else {
@@ -199,15 +208,15 @@ const Farmers = () => {
           <PendingFarmers
             {...{
               pendingFarmers,
-              updateCustomerStatus,
+              updateFarmerStatus,
               handleShowStatusForm,
-              setCustomerStatus,
+              setFarmerStatus,
               expanded,
               showStatus,
               updating,
               isLoading,
-              selectedCustomerId,
-              customerStatus,
+              selectedFarmerId,
+              farmerStatus,
               handleChange,
 
             }}
@@ -218,15 +227,34 @@ const Farmers = () => {
           <ApprovedFarmers
             {...{
               approvedFarmers,
-              updateCustomerStatus,
+              updateFarmerStatus,
               handleShowStatusForm,
-              setCustomerStatus,
+              setFarmerStatus,
               expanded,
               showStatus,
               updating,
               isLoading,
-              selectedCustomerId,
-              customerStatus,
+              selectedFarmerId,
+              farmerStatus,
+              handleChange,
+
+            }}
+          />
+        );
+      case 2:
+        return (
+          <SuspendedFarmers
+            {...{
+              suspendedFarmers,
+              updateFarmerStatus,
+              handleShowStatusForm,
+              setFarmerStatus,
+              expanded,
+              showStatus,
+              updating,
+              isLoading,
+              selectedFarmerId,
+              farmerStatus,
               handleChange,
 
             }}
@@ -257,18 +285,17 @@ const Farmers = () => {
             List New Farmer
           </Button>
           {isOpen && (
-          <FarmerListing
-            
-            isOpen={isOpen}
-            onClose={handleListPopClose}
-          />
-        )}
+            <FarmerListing
+              isOpen={isOpen}
+              onClose={handleListPopClose}
+            />
+          )}
         </Box>
 
         <Box m="2.5rem 0 0 0">
           <Tabs value={value} onChange={handleTabChange}>
-            <Tab label="PendingFarmers Approval" />
-            <Tab label="ApprovedFarmers" />
+            <Tab label="Pending Approval" />
+            <Tab label="Verified" />
             <Tab label="Suspended" />
           </Tabs>
         </Box>

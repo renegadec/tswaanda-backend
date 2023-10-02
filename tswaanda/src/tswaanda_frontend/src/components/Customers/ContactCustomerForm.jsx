@@ -20,7 +20,6 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme }) => {
     const handleEmailSend = async (e) => {
         e.preventDefault()
         setSending(true)
-        console.log("sending")
         try {
             if (message !== "") {
                 await sendCustomerEmailMessage(message, customer.email)
@@ -47,6 +46,8 @@ const ContactCustomerForm = ({ customer, setShowContactForm, theme }) => {
             setSending(false)
         }
     }
+
+    console.log("Contact customer modal mounted", customer)
 
     return (
         <div className="">
