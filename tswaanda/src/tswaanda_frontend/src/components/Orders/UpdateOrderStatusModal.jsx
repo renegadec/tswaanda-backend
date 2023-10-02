@@ -24,7 +24,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusModal, setOrderStatus, updating, theme, order, updated,
+const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusModal, setOrderStatus, updating, theme, modalOrder, updated,
     setUpdated }) => {
 
     const handleStatusModalClose = () => {
@@ -32,8 +32,7 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
     }
 
     const handleUpdateOrderStatus = async () => {
-        // updateOrderStatus(order.orderId)
-        console.log("updating this order ", order)
+        updateOrderStatus(modalOrder.orderId)
     }
 
     useEffect(() => {
@@ -42,8 +41,6 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
             setUpdated(false)
         }
     }, [updated])
-
-    console.log("The modal component loaded", order)
 
 
     return (
@@ -79,14 +76,14 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                                         labelId="status-label"
                                         onChange={(e) => setOrderStatus(e.target.value)}
                                     >
-                                        <MenuItem value="Pending Approval">
+                                        <MenuItem value="pending">
                                             Pending Approval
                                         </MenuItem>
-                                        <MenuItem value="Approved">
+                                        <MenuItem value="approved">
                                             Approved-processing
                                         </MenuItem>
-                                        <MenuItem value="Shipped">Shipped</MenuItem>
-                                        <MenuItem value="Delivered">Delivered</MenuItem>
+                                        <MenuItem value="shipped">Shipped</MenuItem>
+                                        <MenuItem value="delivered">Delivered</MenuItem>
                                     </Select>
                                 </FormControl>
 
@@ -103,7 +100,7 @@ const UpdateOrderStatusModal = ({ openStatusModal, updateOrderStatus, setStatusM
                                         padding: "10px 20px",
                                     }}
                                 >
-                                    {updating ? "Updating..." : "Update order"}
+                                    {updating ? "Updating..." : "Update Order"}
                                 </Button>
                             </Container>
                         </AccordionDetails>
